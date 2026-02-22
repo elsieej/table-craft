@@ -38,7 +38,7 @@
     "sorting",
     "filtering"
   ],
-  "author": "",
+  "author": "Ahmed Elkhdrawy",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18",
@@ -71,6 +71,6 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/Ahmed-Elkhdrawy/table-craft.git"
   }
 }

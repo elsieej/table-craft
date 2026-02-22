@@ -387,6 +387,21 @@ const columns: ColumnDef<User>[] = [
 />
 ```
 
-## License
+## 🤝 Contributing
 
-MIT
+Contributions are welcome! If you have suggestions for improvements or encounter any issues, please open an issue or submit a pull request on the [GitHub repository](https://github.com/Ahmed-Elkhdrawy/table-craft).
+
+Steps to Contribute:
+
+1. Fork the repository. 🍴
+2. Create a new branch for your feature or bugfix. 🌿
+3. Commit your changes. 💾
+4. Push your branch and submit a pull request. 🚀
+
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+**Made with ❤️ by [Ahmed Elkhdrawy](https://github.com/Ahmed-Elkhdrawy).**
