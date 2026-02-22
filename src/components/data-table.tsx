@@ -474,6 +474,7 @@ export function DataTable<TData, TValue>({
               addItemPagePath={addItemPagePath}
               isShowExportButtons={isShowExportButtons}
               customButtons={customButtons}
+              isShowAdvancedFilter={shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter}
             />
           </div>
         </>
@@ -499,7 +500,7 @@ export function DataTable<TData, TValue>({
         </>
       ) : (
         <Card className="mt-3 overflow-hidden">
-          <CardContent className="p-0">
+          <CardContent className="overflow-x-auto p-0">
             <Table>
               <TableHeader className="bg-muted/50">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -545,11 +546,11 @@ export function DataTable<TData, TValue>({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={columns.length} className="py-16 text-center">
-                      <div className="flex flex-col items-center gap-3">
+                      <div className="flex flex-col items-center gap-3 px-4">
                         <SearchX className="size-10 text-muted-foreground/50" aria-hidden="true" />
                         <div className="space-y-1">
                           <p className="font-semibold">{t('no-records-found')}</p>
-                          <p className="text-sm text-muted-foreground">{t('no-records-hint')}</p>
+                          <p className="text-balance text-sm text-muted-foreground">{t('no-records-hint')}</p>
                         </div>
                         {(table.getState().columnFilters.length > 0 || (isQueryFilter && currentFilters && Object.keys(currentFilters).length > 0)) && (
                           <Button

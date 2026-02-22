@@ -44,6 +44,8 @@ const DEFAULT_TRANSLATIONS: Record<string, string> = {
   'Rows Per Page': 'Rows per page',
   'previous': 'Previous',
   'next': 'Next',
+  'first': 'First',
+  'last': 'Last',
 
   // Selection
   'select': 'Select',

@@ -28,6 +28,8 @@ interface DataTableAdvancedFilterProps<TData> {
     React.SetStateAction<DataTableFilterOption<TData>[]>
   >
   children?: React.ReactNode
+  align?: 'start' | 'center' | 'end'
+  side?: 'top' | 'right' | 'bottom' | 'left'
 }
 
 export function DataTableAdvancedFilter<TData>({
@@ -35,6 +37,8 @@ export function DataTableAdvancedFilter<TData>({
   selectedOptions,
   setSelectedOptions,
   children,
+  align = 'end',
+  side,
 }: DataTableAdvancedFilterProps<TData>) {
   const [value, setValue] = React.useState('')
   const [open, setOpen] = React.useState(false)
@@ -59,7 +63,7 @@ export function DataTableAdvancedFilter<TData>({
           </Button>
         )}
       </PopoverTrigger>
-      <PopoverContent className="w-[220px] p-0" align="end">
+      <PopoverContent className="w-[220px] p-0" align={align} side={side}>
         <Command>
           <CommandInput placeholder={t('filter-by')} />
           <CommandEmpty>{t('no-items-found')}</CommandEmpty>

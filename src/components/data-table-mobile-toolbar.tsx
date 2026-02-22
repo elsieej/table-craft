@@ -5,7 +5,7 @@ import type { Table } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ar, enUS } from 'date-fns/locale'
 import { exportSelectedRowsCsv } from '../lib/csv-export'
-import { CalendarIcon, Filter, Loader2, Plus, Sheet, X } from 'lucide-react'
+import { CalendarIcon, Check, Filter, ListFilter, Loader2, Plus, Rows3, Sheet, Type, X } from 'lucide-react'
 import { useTableTranslations } from '../hooks/use-table-translations'
 
 import type { DataTableFilterableColumn, DataTableSearchableColumn } from '../types/table'
@@ -28,8 +28,10 @@ import { Calendar } from './ui/calendar'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import type { DataTableFilterOption } from '../types/table'
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
 import { DataTableViewOptions } from './data-table-view-options'
+import { DataTableAdvancedFilterItem } from './advanced/data-table-advanced-filter-item'
 import { ButtonTooltip, CustomButtonProps } from './table-actions-row'
 
 interface DataTableToolbarProps<TData> {
@@ -46,6 +48,7 @@ interface DataTableToolbarProps<TData> {
     fileName?: string
   }
   customButtons?: CustomButtonProps[] | React.ReactElement
+  isShowAdvancedFilter?: boolean
 }
 
 export function DataTableMobileToolbar<TData>({
@@ -59,6 +62,7 @@ export function DataTableMobileToolbar<TData>({
     fileName: '',
   },
   customButtons,
+  isShowAdvancedFilter = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [isGoPath, setGoPath] = React.useState(false)
@@ -67,6 +71,25 @@ export function DataTableMobileToolbar<TData>({
   const router = config.router
   const [date, setDate] = React.useState<Date>()
   const isArabic = config.i18n.direction === 'rtl' || (config.i18n.direction === 'auto' && config.i18n.locale === 'ar')
+
+  const [selectedOptions, setSelectedOptions] = React.useState<DataTableFilterOption<TData>[]>([])
+
+  const advancedFilterOptions: DataTableFilterOption<TData>[] = React.useMemo(() => {
+    if (!isShowAdvancedFilter) return []
+    const searchableOpts = searchableColumns.map((column) => ({
+      id: crypto.randomUUID(),
+      label: column.title ?? String(column.id),
+      value: column.id,
+      items: [],
+    }))
+    const filterableOpts = filterableColumns.map((column) => ({
+      id: crypto.randomUUID(),
+      label: column.title,
+      value: column.id,
+      items: column.options,
+    }))
+    return [...searchableOpts, ...filterableOpts]
+  }, [isShowAdvancedFilter, filterableColumns, searchableColumns])
 
   const goAddItemPage = () => {
     setGoPath(true)
@@ -239,21 +262,81 @@ export function DataTableMobileToolbar<TData>({
                         )
                     )}
                   <Separator className="bg-main-300 my-2 h-px w-full" />
-                  <div className="flex w-full flex-col gap-4">
-                    {filterableColumns.length > 0 &&
-                      filterableColumns.map(
-                        (column) =>
-                          table.getColumn(column.id ? String(column.id) : '') && (
-                            <DataTableFacetedFilter
-                              className="justify-start"
-                              key={String(column.id)}
-                              column={table.getColumn(column.id ? String(column.id) : '')}
-                              title={column.title}
-                              options={column.options}
-                            />
-                          )
-                      )}
-                  </div>
+                  {isShowAdvancedFilter ? (
+                    <div className="flex w-full flex-col gap-4">
+                      <Drawer direction="right">
+                        <DrawerTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-9 w-full justify-start gap-1.5">
+                            <ListFilter className="size-4" />
+                            {t('add-filter')}
+                          </Button>
+                        </DrawerTrigger>
+                        <DrawerContent direction="right">
+                          <DrawerHeader className="text-start">
+                            <DrawerTitle>{t('advanced-filter')}</DrawerTitle>
+                          </DrawerHeader>
+                          <div className="flex flex-col gap-1 overflow-y-auto p-4">
+                            {advancedFilterOptions.map((option) => {
+                              const isSelected = selectedOptions.some(
+                                (sel) => sel.value === option.value && !sel.isMulti
+                              )
+                              return (
+                                <DrawerClose asChild key={String(option.value)}>
+                                  <Button
+                                    variant={isSelected ? 'outline' : 'ghost'}
+                                    size="sm"
+                                    className="w-full justify-start gap-2 capitalize"
+                                    onClick={() => {
+                                      setSelectedOptions((prev) => {
+                                        if (isSelected) {
+                                          return prev.filter(
+                                            (item) => item.value !== option.value || item.isMulti
+                                          )
+                                        }
+                                        return [...prev, option]
+                                      })
+                                    }}
+                                  >
+                                    {option.items.length > 0 ? (
+                                      <Rows3 className="size-4 text-muted-foreground" />
+                                    ) : (
+                                      <Type className="size-4 text-muted-foreground" />
+                                    )}
+                                    <span className="flex-1 text-start">{option.label}</span>
+                                    {isSelected && <Check className="size-4 text-primary" />}
+                                  </Button>
+                                </DrawerClose>
+                              )
+                            })}
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                      {selectedOptions.filter((opt) => !opt.isMulti).map((selectedOption) => (
+                        <DataTableAdvancedFilterItem
+                          key={String(selectedOption.value)}
+                          table={table}
+                          selectedOption={selectedOption}
+                          setSelectedOptions={setSelectedOptions}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex w-full flex-col gap-4">
+                      {filterableColumns.length > 0 &&
+                        filterableColumns.map(
+                          (column) =>
+                            table.getColumn(column.id ? String(column.id) : '') && (
+                              <DataTableFacetedFilter
+                                className="justify-start"
+                                key={String(column.id)}
+                                column={table.getColumn(column.id ? String(column.id) : '')}
+                                title={column.title}
+                                options={column.options}
+                              />
+                            )
+                        )}
+                    </div>
+                  )}
                   <Separator className="bg-main-300 my-2 h-px w-full" />
                 </div>
                 <div className="grid gap-4">

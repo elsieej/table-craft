@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { Table } from '@tanstack/react-table'
 
 import { cn } from '../lib/utils'
@@ -132,7 +132,21 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             size="sm"
-            className="h-8 gap-1 px-3 text-sm"
+            className="size-8 p-0"
+            onClick={(e) => {
+              e.preventDefault()
+              goToPage(1)
+            }}
+            disabled={currentPage === 1}
+            aria-label={t('first')}
+          >
+            <ChevronsLeft className={cn('size-4', isArabic && 'rotate-180')} />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 px-2 sm:px-3"
             onClick={(e) => {
               e.preventDefault()
               goToPage(currentPage - 1)
@@ -140,7 +154,7 @@ export function DataTablePagination<TData>({
             disabled={currentPage === 1}
           >
             <ChevronLeft className={cn('size-4', isArabic && 'rotate-180')} />
-            {t('previous')}
+            <span className="hidden sm:inline">{t('previous')}</span>
           </Button>
 
           <div className="hidden items-center gap-1 sm:flex">
@@ -177,15 +191,29 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             size="sm"
-            className="h-8 gap-1 px-3 text-sm"
+            className="h-8 gap-1 px-2 sm:px-3"
             onClick={(e) => {
               e.preventDefault()
               goToPage(currentPage + 1)
             }}
             disabled={currentPage === totalPages}
           >
-            {t('next')}
+            <span className="hidden sm:inline">{t('next')}</span>
             <ChevronRight className={cn('size-4', isArabic && 'rotate-180')} />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="size-8 p-0"
+            onClick={(e) => {
+              e.preventDefault()
+              goToPage(totalPages)
+            }}
+            disabled={currentPage === totalPages}
+            aria-label={t('last')}
+          >
+            <ChevronsRight className={cn('size-4', isArabic && 'rotate-180')} />
           </Button>
         </div>
       )}
