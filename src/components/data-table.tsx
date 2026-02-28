@@ -45,14 +45,14 @@ import { useTableTranslations } from '../hooks/use-table-translations'
 import { useResolvedTableConfig } from '../config'
 import type { TableConfigInput } from '../types/table-config'
 import { Card, CardContent } from './ui/card'
-import { Pagination } from '../types/pagination'
+import { Pagination, CursorPaginationData } from '../types/pagination'
 import { SearchX, RotateCcw } from 'lucide-react'
 import { Button } from './ui/button'
 
 type BaseProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  pageCount: number
+  pageCount?: number
   pageSize?: number
   filterableColumns?: DataTableFilterableColumn<TData>[]
   showFilter?: boolean
@@ -112,15 +112,25 @@ type QueryPaginationProps<TData, TValue> = {
     onPageChange: (page: number) => void
     onPageSizeChange: (size: number) => void
   }
+  isCursorPagination?: never
+  cursorPaginationData?: never
 }
 type LocalPaginationProps<TData, TValue> = {
   isQueryPagination?: false
+  paginationData?: never
+  isCursorPagination?: never
+  cursorPaginationData?: never
+}
+type CursorPaginationProps<TData, TValue> = {
+  isCursorPagination: true
+  cursorPaginationData: CursorPaginationData
+  isQueryPagination?: never
   paginationData?: never
 }
 
 type DataTableProps<TData, TValue> = BaseProps<TData, TValue> &
   (QuerySearchProps<TData, TValue> | LocalSearchProps<TData, TValue>) &
-  (QueryPaginationProps<TData, TValue> | LocalPaginationProps<TData, TValue>) &
+  (QueryPaginationProps<TData, TValue> | LocalPaginationProps<TData, TValue> | CursorPaginationProps<TData, TValue>) &
   (QueryFilterProps<TData, TValue> | LocalFilterProps<TData, TValue>)
 
 export function DataTable<TData, TValue>({
@@ -143,6 +153,8 @@ export function DataTable<TData, TValue>({
   customButtons,
   isQueryPagination = false,
   paginationData,
+  isCursorPagination,
+  cursorPaginationData,
   isQuerySearch = false,
   searchableQuery = [],
   isLoading,
@@ -167,8 +179,8 @@ export function DataTable<TData, TValue>({
   const resolvedPageSize = defaultPageSize ?? resolvedConfig.pagination.defaultPageSize
 
   const isManualFiltering = isQuerySearch || isQueryFilter
-  const isManualPagination = isQueryPagination
-  const isManualSorting = isQueryPagination || isQuerySearch || isQueryFilter
+  const isManualPagination = isQueryPagination || isCursorPagination
+  const isManualSorting = isQueryPagination || isCursorPagination || isQuerySearch || isQueryFilter
 
   // Read URL params via router adapter (or use defaults)
   const searchParams = router ? router.getSearchParams() : new URLSearchParams()
@@ -258,7 +270,7 @@ export function DataTable<TData, TValue>({
   // Sync pagination to URL via router adapter
   const paginationMountRef = React.useRef(true)
   React.useEffect(() => {
-    if (isQueryPagination || !router) return
+    if (isQueryPagination || isCursorPagination || !router) return
     if (paginationMountRef.current) {
       paginationMountRef.current = false
       return
@@ -266,7 +278,7 @@ export function DataTable<TData, TValue>({
     const replaceUrl = router.replace || router.push
     replaceUrl(`${pathname}?${createQueryString({ page: pageIndex + 1, per_page: pageSize })}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize, isQueryPagination])
+  }, [pageIndex, pageSize, isQueryPagination, isCursorPagination])
 
   const [sorting, setSorting] = React.useState<SortingState>(
     column ? [{ id: column, desc: order === 'desc' }] : []
@@ -485,7 +497,13 @@ export function DataTable<TData, TValue>({
           {shouldShowPagination ? (
             <Card className="mt-3 overflow-hidden">
               <div className="space-y-2.5">
-                {isQueryPagination && paginationData ? (
+                {isCursorPagination && cursorPaginationData ? (
+                  <DataTablePagination
+                    table={table}
+                    isCursorPagination={true}
+                    cursorPaginationData={cursorPaginationData}
+                  />
+                ) : isQueryPagination && paginationData ? (
                   <DataTablePagination
                     table={table}
                     isQueryPagination={true}
@@ -578,7 +596,13 @@ export function DataTable<TData, TValue>({
           </CardContent>
           {shouldShowPagination ? (
             <div className="space-y-2.5">
-              {isQueryPagination && paginationData ? (
+              {isCursorPagination && cursorPaginationData ? (
+                <DataTablePagination
+                  table={table}
+                  isCursorPagination={true}
+                  cursorPaginationData={cursorPaginationData}
+                />
+              ) : isQueryPagination && paginationData ? (
                 <DataTablePagination
                   table={table}
                   isQueryPagination={true}

@@ -23,3 +23,19 @@ export interface BackendPagination {
   meta: PaginationMeta
   links?: PaginationLinks
 }
+
+export interface CursorPaginationInfo {
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+  startCursor?: string | null
+  endCursor?: string | null
+  totalCount?: number
+}
+
+export interface CursorPaginationData {
+  pageInfo: CursorPaginationInfo
+  onNextPage: () => void
+  onPreviousPage: () => void
+  onPageSizeChange: (size: number) => void
+  pageSize?: number
+}

@@ -12,7 +12,7 @@ import {
 } from './ui/select'
 import { useTableTranslations } from '../hooks/use-table-translations'
 import { useTableConfig } from '../config'
-import { Pagination } from '../types/pagination'
+import { Pagination, CursorPaginationData } from '../types/pagination'
 
 type BaseProps<TData> = {
   table: Table<TData>
@@ -26,14 +26,25 @@ type QueryPaginationProps<TData> = BaseProps<TData> & {
     onPageChange: (page: number) => void
     onPageSizeChange: (size: number) => void
   }
+  isCursorPagination?: never
+  cursorPaginationData?: never
 }
 
 type LocalPaginationProps<TData> = BaseProps<TData> & {
   isQueryPagination?: false
   paginationData?: never | undefined
+  isCursorPagination?: never
+  cursorPaginationData?: never
 }
 
-type DataTablePaginationProps<TData> = QueryPaginationProps<TData> | LocalPaginationProps<TData>
+type CursorPaginationProps<TData> = BaseProps<TData> & {
+  isCursorPagination: true
+  cursorPaginationData: CursorPaginationData
+  isQueryPagination?: never
+  paginationData?: never
+}
+
+type DataTablePaginationProps<TData> = QueryPaginationProps<TData> | LocalPaginationProps<TData> | CursorPaginationProps<TData>
 
 function getVisiblePages(currentPage: number, totalPages: number): (number | 'ellipsis')[] {
   if (totalPages <= 5) {
@@ -53,16 +64,88 @@ function getVisiblePages(currentPage: number, totalPages: number): (number | 'el
   return pages
 }
 
-export function DataTablePagination<TData>({
-  table,
-  pageSizeOptions,
-  isQueryPagination = false,
-  paginationData,
-}: DataTablePaginationProps<TData>) {
+export function DataTablePagination<TData>(props: DataTablePaginationProps<TData>) {
+  const {
+    table,
+    pageSizeOptions,
+  } = props
+
   const t = useTableTranslations()
   const config = useTableConfig()
   const isArabic = config.i18n.direction === 'rtl' || (config.i18n.direction === 'auto' && config.i18n.locale === 'ar')
   const resolvedPageSizeOptions = pageSizeOptions ?? config.pagination.pageSizeOptions
+
+  // ── Cursor-based pagination mode ──
+  if ('isCursorPagination' in props && props.isCursorPagination) {
+    const { cursorPaginationData } = props
+    const { pageInfo, onNextPage, onPreviousPage, onPageSizeChange, pageSize: cursorPageSize } = cursorPaginationData
+    const resolvedPageSize = cursorPageSize ?? resolvedPageSizeOptions[0] ?? 10
+
+    return (
+      <nav role="navigation" aria-label={t('pagination')} className="flex w-full flex-col gap-4 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-4">
+          {pageInfo.totalCount != null && (
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{pageInfo.totalCount}</span>{' '}
+              {t('records')}
+            </p>
+          )}
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-muted-foreground">{t('Rows Per Page')}</p>
+            <Select
+              value={`${resolvedPageSize}`}
+              onValueChange={(value) => onPageSizeChange(Number(value))}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={resolvedPageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {resolvedPageSizeOptions.map((size) => (
+                  <SelectItem key={size} value={`${size}`}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 px-2 sm:px-3"
+            onClick={(e) => {
+              e.preventDefault()
+              onPreviousPage()
+            }}
+            disabled={!pageInfo.hasPreviousPage}
+          >
+            <ChevronLeft className={cn('size-4', isArabic && 'rotate-180')} />
+            <span className="hidden sm:inline">{t('previous')}</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 px-2 sm:px-3"
+            onClick={(e) => {
+              e.preventDefault()
+              onNextPage()
+            }}
+            disabled={!pageInfo.hasNextPage}
+          >
+            <span className="hidden sm:inline">{t('next')}</span>
+            <ChevronRight className={cn('size-4', isArabic && 'rotate-180')} />
+          </Button>
+        </div>
+      </nav>
+    )
+  }
+
+  // ── Offset-based pagination modes (query / local) ──
+  const isQueryPagination = 'isQueryPagination' in props && props.isQueryPagination
+  const paginationData = 'paginationData' in props ? props.paginationData : undefined
 
   const currentPage = isQueryPagination
     ? (paginationData?.paginationResponse?.meta?.current_page ?? 1)

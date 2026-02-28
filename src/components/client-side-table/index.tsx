@@ -7,7 +7,7 @@ import { DataTableColumnHeader } from '../data-table-column-header'
 import { CustomButtonProps } from '../table-actions-row'
 import { useTableTranslations } from '../../hooks/use-table-translations'
 import type { TableConfigInput } from '../../types/table-config'
-import { Pagination } from '../../types/pagination'
+import { Pagination, CursorPaginationData } from '../../types/pagination'
 import {
   DataTableFilterableColumn,
   DataTableQuerySearchable,
@@ -17,7 +17,7 @@ import { FilterOptions } from '../../types/filter-options'
 
 type BaseProps<TData, TValue> = {
   data: TData[]
-  pageCount: number
+  pageCount?: number
   pageSize?: number
   columns: ColumnDef<TData, TValue>[]
   showFilter?: boolean
@@ -76,16 +76,27 @@ type QueryPaginationProps<TData, TValue> = {
     onPageChange: (page: number) => void
     onPageSizeChange: (size: number) => void
   }
+  isCursorPagination?: never
+  cursorPaginationData?: never
 }
 
 type LocalPaginationProps<TData, TValue> = {
   isQueryPagination?: false
   paginationData?: never
+  isCursorPagination?: never
+  cursorPaginationData?: never
+}
+
+type CursorPaginationProps<TData, TValue> = {
+  isCursorPagination: true
+  cursorPaginationData: CursorPaginationData
+  isQueryPagination?: never
+  paginationData?: never
 }
 
 type TasksTableShellProps<TData, TValue> = BaseProps<TData, TValue> &
   (QuerySearchProps<TData, TValue> | LocalSearchProps<TData, TValue>) &
-  (QueryPaginationProps<TData, TValue> | LocalPaginationProps<TData, TValue>) &
+  (QueryPaginationProps<TData, TValue> | LocalPaginationProps<TData, TValue> | CursorPaginationProps<TData, TValue>) &
   (QueryFilterProps<TData, TValue> | LocalFilterProps<TData, TValue>)
 
 export function ClientSideTable<TData, TValue>({
@@ -107,6 +118,8 @@ export function ClientSideTable<TData, TValue>({
   withIndex = true,
   isQueryPagination = false,
   paginationData,
+  isCursorPagination,
+  cursorPaginationData,
   isLoading = false,
   isQuerySearch = false,
   searchableQuery = [],
@@ -172,9 +185,11 @@ export function ClientSideTable<TData, TValue>({
             isQuerySearch: false as const,
             searchableColumns: searchableColumns,
           })}
-      {...(isQueryPagination && paginationData
-        ? { isQueryPagination: true as const, paginationData }
-        : { isQueryPagination: false as const })}
+      {...(isCursorPagination && cursorPaginationData
+        ? { isCursorPagination: true as const, cursorPaginationData }
+        : isQueryPagination && paginationData
+          ? { isQueryPagination: true as const, paginationData }
+          : { isQueryPagination: false as const })}
       {...(isQueryFilter && handleFilterChange
         ? {
             isQueryFilter: true as const,

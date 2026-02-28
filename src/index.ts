@@ -67,6 +67,8 @@ export type {
   PaginationLinks,
   Pagination,
   BackendPagination,
+  CursorPaginationInfo,
+  CursorPaginationData,
 } from './types/pagination'
 
 export type { FilterOptions } from './types/filter-options'
