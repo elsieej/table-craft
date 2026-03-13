@@ -48,6 +48,8 @@ import { Card, CardContent } from './ui/card'
 import { Pagination, CursorPaginationData } from '../types/pagination'
 import { SearchX, RotateCcw } from 'lucide-react'
 import { Button } from './ui/button'
+import { ResolvedTableConfigContext } from '../config/context'
+import { Skeleton } from './ui/skeleton'
 
 type BaseProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
@@ -434,7 +436,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <>
+    <ResolvedTableConfigContext.Provider value={resolvedConfig}>
       {shouldShowFilter ? (
         <>
           <div className="max-md:hidden">
@@ -493,7 +495,21 @@ export function DataTable<TData, TValue>({
       ) : null}
       {viewMode === 'cards' ? (
         <>
-          <DataTableCardView table={table} />
+          {isLoading ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: pageSize }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="space-y-3 p-4">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <DataTableCardView table={table} />
+          )}
           {shouldShowPagination ? (
             <Card className="mt-3 overflow-hidden">
               <div className="space-y-2.5">
@@ -547,7 +563,17 @@ export function DataTable<TData, TValue>({
                 ))}
               </TableHeader>
               <TableBody>
-                {table.getRowModel()?.rows?.length ? (
+                {isLoading ? (
+                  Array.from({ length: pageSize }).map((_, i) => (
+                    <TableRow key={i} className="hover:bg-transparent">
+                      {Array.from({ length: columns.length }).map((_, j) => (
+                        <TableCell key={j}>
+                          <Skeleton className="h-6 w-full" />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : table.getRowModel()?.rows?.length ? (
                   table.getRowModel()?.rows.map((row, rowIndex) => (
                     <TableRow
                       key={row.id}
@@ -615,6 +641,6 @@ export function DataTable<TData, TValue>({
           ) : null}
         </Card>
       )}
-    </>
+    </ResolvedTableConfigContext.Provider>
   )
 }
