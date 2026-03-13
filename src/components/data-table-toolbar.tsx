@@ -183,7 +183,7 @@ export function DataTableToolbar<TData>({
                     type={column?.type || 'text'}
                     placeholder={`${t('Filter')} ${column.title}...`}
                     onChange={column.handleInputChange}
-                    defaultValue={column.defaultSearch || ''}
+                    value={column.defaultSearch || ''}
                     className="ps-9"
                   />
                 </div>

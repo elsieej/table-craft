@@ -76,3 +76,6 @@ export type { FilterOptions } from './types/filter-options'
 // ─── Utilities ─────────────────────────────────────────────────────────────────
 export { cn } from './lib/utils'
 export { exportSelectedRowsCsv, createCsvConfig } from './lib/csv-export'
+
+
+export { Checkbox } from './components/ui/checkbox'

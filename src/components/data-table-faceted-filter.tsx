@@ -56,12 +56,11 @@ export function DataTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const t = useTableTranslations()
   const [selectedValues, setSelectedValues] = useState<Set<string>>(new Set())
-
   useEffect(() => {
     let filterValue: string[] = []
 
     if (isQueryFilter) {
-      filterValue = currentValue ? [currentValue] : []
+      filterValue = currentValue ? currentValue.split('.').filter(Boolean) : []
     } else if (column) {
       const columnFilterValue = (column as Column<TData, TValue>)?.getFilterValue()
       filterValue = Array.isArray(columnFilterValue) ? (columnFilterValue as string[]) : []
@@ -71,27 +70,18 @@ export function DataTableFacetedFilter<TData, TValue>({
   }, [currentValue, column, isQueryFilter])
 
   const handleValueChange = (value: string) => {
-    if (isQueryFilter) {
-      setSelectedValues(new Set([value]))
-    } else {
-      const newSelectedValues = new Set(selectedValues)
-      if (newSelectedValues.has(value)) {
+    const newSelectedValues: Set<string> = new Set(selectedValues);
+    if (newSelectedValues.has(value)) {
         newSelectedValues.delete(value)
-      } else {
+    } else {
         newSelectedValues.add(value)
-      }
-      setSelectedValues(newSelectedValues)
     }
+    setSelectedValues(newSelectedValues)
 
     if (isQueryFilter && handleFilterChange && column) {
-      handleFilterChange(String(column.id), value)
+      const joined = Array.from(newSelectedValues).join('.')
+      handleFilterChange(String(column.id), joined || undefined)
     } else if (!isQueryFilter && column) {
-      const newSelectedValues = new Set(selectedValues)
-      if (newSelectedValues.has(value)) {
-        newSelectedValues.delete(value)
-      } else {
-        newSelectedValues.add(value)
-      }
       const filterValues = Array.from(newSelectedValues)
       const finalValue = filterValues.length > 0 ? filterValues : undefined
       ;(column as Column<TData, TValue>).setFilterValue(finalValue)

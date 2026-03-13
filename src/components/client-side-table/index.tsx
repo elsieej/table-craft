@@ -144,15 +144,21 @@ export function ClientSideTable<TData, TValue>({
                 <DataTableColumnHeader column={column} title={t('row-number')} />
               ),
               cell: ({ row, table }: { row: Row<TData>; table: Table<TData> }) => (
-                <div className="w-full">
-                  {table.getState().pagination.pageIndex + 1 === 1
-                    ? row.index + 1
-                    : table.getState().pagination.pageIndex + 1 > 1
-                      ? table.getState().pagination.pageIndex *
-                          table.getState().pagination.pageSize +
-                        (row.index + 1)
-                      : row.index + 1}
-                </div>
+                isQueryPagination ? (
+                    <div className="w-full">
+                        {table.getState().pagination.pageIndex + 1 === 1
+                        ? row.index + 1
+                        : table.getState().pagination.pageIndex + 1 > 1
+                            ? table.getState().pagination.pageIndex *
+                                table.getState().pagination.pageSize +
+                            (row.index + 1)
+                            : row.index + 1}
+                    </div>
+                ) : (
+                    <div className="w-full">
+                        {row.index + 1}
+                    </div>
+                )
               ),
               enableSorting: false,
               enableHiding: false,

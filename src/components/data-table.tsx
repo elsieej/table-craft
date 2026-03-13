@@ -188,12 +188,28 @@ export function DataTable<TData, TValue>({
   const searchParams = router ? router.getSearchParams() : new URLSearchParams()
   const pathname = router ? router.getPathname() : ''
 
-  const page = searchParams.get('page') ?? '1'
+//   const page = searchParams.get('page') ?? '1'
+//   const pageAsNumber = Number(page)
+//   const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+  const pageFromUrl = searchParams.get('page')
+  const pageFromData = isQueryPagination && paginationData ? paginationData.paginationResponse?.meta?.current_page : null
+  const page = pageFromUrl ?? (pageFromData !== null ? String(pageFromData) : '1')
   const pageAsNumber = Number(page)
   const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
-  const per_page = searchParams.get('per_page') ?? '10'
+
+
+//   const per_page = searchParams.get('per_page') ?? '10'
+//   const perPageAsNumber = Number(per_page)
+//   const fallbackPerPage = isNaN(perPageAsNumber) ? resolvedPageSize : perPageAsNumber
+const perPageFromUrl = searchParams.get('per_page')
+const perPageFromData =
+isQueryPagination && paginationData
+    ? paginationData.paginationResponse?.meta?.per_page
+    : null
+  const per_page = perPageFromUrl ?? (perPageFromData != null ? String(perPageFromData) : '10')
   const perPageAsNumber = Number(per_page)
   const fallbackPerPage = isNaN(perPageAsNumber) ? resolvedPageSize : perPageAsNumber
+
   const sort = searchParams.get('sort')
   const [column, order] = sort?.split('.') ?? []
 
