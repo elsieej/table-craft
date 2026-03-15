@@ -45,12 +45,17 @@ export type {
   DataTableQuerySearchable,
   DataTableFilterableColumn,
   DataTableFilterOption,
+  FilterSerializer,
+  SerializedResult,
+  SerializedSingleKey,
+  SerializedMultiKey,
 } from './types/table'
 
 export type {
   DeepPartial,
   TableRouterAdapter,
   TableFeatureFlags,
+  TableFilterConfig,
   TablePaginationConfig,
   TableSearchConfig,
   TableI18nConfig,
@@ -72,6 +77,15 @@ export type {
 } from './types/pagination'
 
 export type { FilterOptions } from './types/filter-options'
+
+// ─── Serializers ──────────────────────────────────────────────────────────────
+export {
+  createDelimited,
+  dotSeparated,
+  commaSeparated,
+  pipeSeparated,
+  multiKey,
+} from './serializers/filter-serializers'
 
 // ─── Utilities ─────────────────────────────────────────────────────────────────
 export { cn } from './lib/utils'

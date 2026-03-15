@@ -9,6 +9,7 @@ export type {
   TableConfig,
   TableConfigInput,
   TableFeatureFlags,
+  TableFilterConfig,
   TablePaginationConfig,
   TableSearchConfig,
   TableI18nConfig,

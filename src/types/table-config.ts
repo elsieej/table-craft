@@ -1,3 +1,5 @@
+import type { FilterSerializer } from './table'
+
 /** Deep-partial helper: makes every property (and nested property) optional. */
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -59,6 +61,12 @@ export interface TableSearchConfig {
   minSearchLength: number
 }
 
+/** Filter configuration (URL serialization for filterable columns). */
+export interface TableFilterConfig {
+  /** Default serializer for filter array values. Used when column has no serializer override. */
+  defaultSerializer: FilterSerializer
+}
+
 /** Internationalization configuration. */
 export interface TableI18nConfig {
   /** Current locale string (e.g. 'en', 'ar'). */
@@ -118,6 +126,7 @@ export interface TableConfig {
   features: TableFeatureFlags
   pagination: TablePaginationConfig
   search: TableSearchConfig
+  filter: TableFilterConfig
   i18n: TableI18nConfig
   performance: TablePerformanceConfig
   enterprise: TableEnterpriseConfig

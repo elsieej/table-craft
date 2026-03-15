@@ -23,6 +23,7 @@ import type {
   DataTableFilterableColumn,
   DataTableQuerySearchable,
   DataTableSearchableColumn,
+  FilterSerializer,
 } from '../types/table'
 import { FilterOptions } from '../types/filter-options'
 import { useDebounce } from '../hooks/use-debounce'
@@ -43,13 +44,20 @@ import { CustomButtonProps } from './table-actions-row'
 import { DataTableMobileToolbar } from './data-table-mobile-toolbar'
 import { useTableTranslations } from '../hooks/use-table-translations'
 import { useResolvedTableConfig } from '../config'
-import type { TableConfigInput } from '../types/table-config'
+import type { TableConfig, TableConfigInput } from '../types/table-config'
 import { Card, CardContent } from './ui/card'
 import { Pagination, CursorPaginationData } from '../types/pagination'
 import { SearchX, RotateCcw } from 'lucide-react'
 import { Button } from './ui/button'
 import { ResolvedTableConfigContext } from '../config/context'
 import { Skeleton } from './ui/skeleton'
+
+function resolveSerializer<TData>(
+  column: DataTableFilterableColumn<TData>,
+  config: TableConfig
+): FilterSerializer {
+  return column.serializer ?? config.filter.defaultSerializer
+}
 
 type BaseProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[]
@@ -198,13 +206,24 @@ export function DataTable<TData, TValue>({
   const [column, order] = sort?.split('.') ?? []
 
   const createQueryString = React.useCallback(
-    (params: Record<string, string | number | null>) => {
+    (
+      params: Record<string, string | number | null>,
+      multiParams?: Record<string, string[]>
+    ) => {
       const newSearchParams = new URLSearchParams(searchParams.toString())
       for (const [key, value] of Object.entries(params)) {
         if (value === null) {
           newSearchParams.delete(key)
         } else {
           newSearchParams.set(key, String(value))
+        }
+      }
+      if (multiParams) {
+        for (const [key, values] of Object.entries(multiParams)) {
+          newSearchParams.delete(key)
+          for (const v of values) {
+            newSearchParams.append(key, v)
+          }
         }
       }
       return newSearchParams.toString()
@@ -228,14 +247,17 @@ export function DataTable<TData, TValue>({
     }
     if (!isQueryFilter && filterableColumns.length > 0) {
       for (const col of filterableColumns) {
-        const urlValue = searchParams.get(String(col.id))
-        if (urlValue) {
-          filters.push({ id: String(col.id), value: urlValue.split('.') })
+        const serializer = resolveSerializer(col, resolvedConfig)
+        const rawValue = searchParams.get(String(col.id))
+        const allValues = searchParams.getAll(String(col.id))
+        const parsed = serializer.parse(rawValue, allValues)
+        if (parsed.length > 0) {
+          filters.push({ id: String(col.id), value: parsed })
         }
       }
     }
     return filters
-  }, [searchParams, searchableColumns, filterableColumns, isQuerySearch, isQueryFilter])
+  }, [searchParams, searchableColumns, filterableColumns, isQuerySearch, isQueryFilter, resolvedConfig])
 
   const [columnFilters, setColumnFilters] =
     React.useState<ColumnFiltersState>(initializeColumnFilters)
@@ -366,6 +388,7 @@ export function DataTable<TData, TValue>({
 
     const currentFilterableFilters = JSON.parse(filterableString) as ColumnFiltersState
     const updates: Record<string, string | number | null> = {}
+    const multiKeyUpdates: Record<string, string[]> = {}
     let hasChanges = false
 
     for (const col of currentFilterableFilters) {
@@ -374,10 +397,26 @@ export function DataTable<TData, TValue>({
         Array.isArray(col.value) &&
         col.value.length > 0
       ) {
-        const newValue = col.value.join('.')
-        updates[col.id] = newValue
-        if (searchParams.get(String(col.id)) !== newValue) {
-          hasChanges = true
+        const columnDef = filterableColumns.find((c) => String(c.id) === col.id)
+        if (!columnDef) continue
+        const serializer = resolveSerializer(columnDef, resolvedConfig)
+        const result = serializer.serialize(col.value as string[])
+
+        if (result.type === 'single') {
+          updates[col.id] = result.value
+          if (searchParams.get(String(col.id)) !== result.value) {
+            hasChanges = true
+          }
+        } else {
+          multiKeyUpdates[col.id] = result.values
+          const currentMulti = searchParams.getAll(String(col.id))
+          const newMulti = result.values
+          if (
+            currentMulti.length !== newMulti.length ||
+            currentMulti.some((v, i) => v !== newMulti[i])
+          ) {
+            hasChanges = true
+          }
         }
       }
     }
@@ -396,7 +435,7 @@ export function DataTable<TData, TValue>({
       updates.page = 1
     }
 
-    const newQueryString = createQueryString(updates)
+    const newQueryString = createQueryString(updates, multiKeyUpdates)
     const currentQueryString = searchParams.toString() || ''
 
     if (newQueryString !== currentQueryString && hasChanges) {

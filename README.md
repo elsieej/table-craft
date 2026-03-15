@@ -22,6 +22,7 @@ A production-ready, framework-agnostic React data table system built on [TanStac
 - **Responsive** — Desktop toolbar + mobile toolbar with drawer-based filters
 - **Configurable** — 4-layer config system (defaults → provider → instance → plugins)
 - **Plugin Architecture** — Extend behavior with priority-based plugins
+- **Configurable Filter Serialization** — Per-column and global URL array formats: dot, comma, pipe, multi-key, or fully custom
 
 ## Installation
 
@@ -324,6 +325,136 @@ const config = createTableConfig({
 
 Components automatically adjust padding, alignment, and icon positioning for RTL layouts.
 
+## Filter Serialization
+
+When using URL-synced filterable columns, filter values are serialized as URL query parameters. Different backends expect different array formats. react-table-craft lets you configure this format globally or per-column.
+
+### Built-in Serializers
+
+| Serializer | URL format | Import |
+|---|---|---|
+| `dotSeparated` | `?status=a.b.c` | `import { dotSeparated } from 'react-table-craft'` |
+| `commaSeparated` | `?status=a,b,c` | `import { commaSeparated } from 'react-table-craft'` |
+| `pipeSeparated` | `?status=a\|b\|c` | `import { pipeSeparated } from 'react-table-craft'` |
+| `multiKey` | `?status=a&status=b&status=c` | `import { multiKey } from 'react-table-craft'` |
+
+`dotSeparated` is the default (backward compatible with previous versions).
+
+### Per-Column Override
+
+Add a `serializer` field to any `DataTableFilterableColumn` to override the format for that specific column:
+
+```tsx
+import { DataTable, commaSeparated, multiKey } from 'react-table-craft'
+
+<DataTable
+  filterableColumns={[
+    {
+      id: 'status',
+      title: 'Status',
+      options: statusOptions,
+      serializer: commaSeparated,   // ?status=active,pending
+    },
+    {
+      id: 'tags',
+      title: 'Tags',
+      options: tagOptions,
+      serializer: multiKey,         // ?tags=react&tags=typescript
+    },
+    {
+      id: 'priority',
+      title: 'Priority',
+      options: priorityOptions,
+      // no serializer → uses global default (dotSeparated unless overridden)
+    },
+  ]}
+/>
+```
+
+### Global Default
+
+Override the default serializer for all columns via the 4-layer config system.
+
+**Via `TableProvider` (Layer 2 — applies to all tables in the subtree):**
+
+```tsx
+import { TableProvider, createTableConfig, commaSeparated } from 'react-table-craft'
+
+const config = createTableConfig({
+  filter: {
+    defaultSerializer: commaSeparated,
+  },
+})
+
+function App() {
+  return (
+    <TableProvider config={config}>
+      <YourApp />
+    </TableProvider>
+  )
+}
+```
+
+**Via per-table `config` prop (Layer 3 — applies to one table only):**
+
+```tsx
+import { DataTable, multiKey } from 'react-table-craft'
+
+<DataTable
+  config={{ filter: { defaultSerializer: multiKey } }}
+  filterableColumns={[...]}
+/>
+```
+
+**Via plugin (Layer 4 — useful for backend compatibility presets):**
+
+```tsx
+import type { TablePlugin } from 'react-table-craft'
+import { commaSeparated } from 'react-table-craft'
+
+const djangoRestPlugin: TablePlugin = {
+  name: 'django-rest-compat',
+  priority: 10,
+  config: {
+    filter: { defaultSerializer: commaSeparated },
+  },
+}
+```
+
+### Custom Serializer
+
+Implement the `FilterSerializer` interface to create any custom format:
+
+```tsx
+import type { FilterSerializer } from 'react-table-craft'
+
+// Factory for any delimiter
+import { createDelimited } from 'react-table-craft'
+
+const semicolonSeparated = createDelimited(';')  // ?key=a;b;c
+
+// Or fully custom from scratch
+const base64Serializer: FilterSerializer = {
+  parse: (raw) => raw ? JSON.parse(atob(raw)) : [],
+  serialize: (values) => ({
+    type: 'single',
+    value: btoa(JSON.stringify(values)),
+  }),
+}
+```
+
+### Resolution Priority
+
+When rendering a filter, the serializer is resolved in this order:
+
+```
+column.serializer               ← highest priority (per-column prop)
+    │
+    └─ config.filter.defaultSerializer   ← resolved from all 4 config layers
+           │
+           └─ dotSeparated               ← built-in default (Layer 1)
+```
+
 ## Plugins
 
 Extend table behavior with plugins:
@@ -347,6 +478,16 @@ const config = createTableConfig({
 ```
 
 Plugins are merged in priority order (lower numbers merge first, higher numbers override).
+
+## Exported Serializers
+
+| Export | Type | Description |
+|---|---|---|
+| `dotSeparated` | `FilterSerializer` | `?key=a.b.c` (default) |
+| `commaSeparated` | `FilterSerializer` | `?key=a,b,c` |
+| `pipeSeparated` | `FilterSerializer` | `?key=a\|b\|c` |
+| `multiKey` | `FilterSerializer` | `?key=a&key=b&key=c` |
+| `createDelimited(sep)` | `(string) => FilterSerializer` | Factory for any single-character delimiter |
 
 ## Exported Components
 
@@ -384,11 +525,18 @@ import type {
   DataTableFilterOption,
   FilterOptions,
 
+  // Filter serialization types
+  FilterSerializer,
+  SerializedResult,
+  SerializedSingleKey,
+  SerializedMultiKey,
+
   // Config types
   TableConfig,
   TableConfigInput,
   TableRouterAdapter,
   TableFeatureFlags,
+  TableFilterConfig,
   TablePaginationConfig,
   TableSearchConfig,
   TableI18nConfig,

@@ -1,5 +1,25 @@
 import type { ComponentType } from 'react'
 
+/** Result of serializing filter values for URL — single key (e.g. ?key=a.b.c) or multi-key (e.g. ?key=a&key=b). */
+export interface SerializedSingleKey {
+  type: 'single'
+  value: string
+}
+
+/** Result of serializing filter values for URL — multi-key format. */
+export interface SerializedMultiKey {
+  type: 'multi'
+  values: string[]
+}
+
+export type SerializedResult = SerializedSingleKey | SerializedMultiKey
+
+/** Parses URL param(s) into string[] and serializes string[] back to URL format. */
+export interface FilterSerializer {
+  parse(rawValue: string | null, allValues: string[]): string[]
+  serialize(values: string[]): SerializedResult
+}
+
 /** A selectable option used in filter dropdowns. */
 export interface Option {
   label: string
@@ -30,6 +50,8 @@ export interface DataTableFilterableColumn<TData> {
   options: Option[]
   /** When true, only one option can be selected at a time (radio behavior). */
   isSingleSelect?: boolean
+  /** Override URL serialization format for this column. Falls back to config.filter.defaultSerializer. */
+  serializer?: FilterSerializer
 }
 
 /** Configuration for an advanced filter option (used in the filter builder UI). */

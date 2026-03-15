@@ -1,4 +1,5 @@
 import type { TableConfig } from '../types/table-config'
+import { dotSeparated } from '../serializers/filter-serializers'
 
 /**
  * Core default config (Layer 1).
@@ -25,6 +26,9 @@ export const DEFAULT_TABLE_CONFIG: Readonly<TableConfig> = Object.freeze({
   search: Object.freeze({
     debounceMs: 500,
     minSearchLength: 0,
+  }),
+  filter: Object.freeze({
+    defaultSerializer: dotSeparated,
   }),
   i18n: Object.freeze({
     locale: 'en',
