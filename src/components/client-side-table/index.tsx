@@ -37,6 +37,10 @@ type BaseProps<TData, TValue> = {
   customCss?: string
   isShowAdvancedFilter?: boolean
   config?: TableConfigInput
+  cardClassName?: string
+  cardContentClassName?: string
+  toolbarClassName?: string
+  paginationFooterClassName?: string
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -131,6 +135,10 @@ export function ClientSideTable<TData, TValue>({
   customCss,
   isShowAdvancedFilter = false,
   config,
+  cardClassName,
+  cardContentClassName,
+  toolbarClassName,
+  paginationFooterClassName,
 }: TasksTableShellProps<TData, TValue>) {
   const t = useTableTranslations()
 
@@ -179,6 +187,10 @@ export function ClientSideTable<TData, TValue>({
       customCss={customCss}
       isShowAdvancedFilter={isShowAdvancedFilter}
       config={config}
+      cardClassName={cardClassName}
+      cardContentClassName={cardContentClassName}
+      toolbarClassName={toolbarClassName}
+      paginationFooterClassName={paginationFooterClassName}
       {...(isQuerySearch
         ? { isQuerySearch: true as const, searchableQuery: searchableQuery }
         : {

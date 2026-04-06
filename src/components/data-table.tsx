@@ -51,6 +51,12 @@ import { SearchX, RotateCcw } from 'lucide-react'
 import { Button } from './ui/button'
 import { ResolvedTableConfigContext } from '../config/context'
 import { Skeleton } from './ui/skeleton'
+import { cn } from '../lib/utils'
+
+type DataTableColumnMeta = {
+  thClassName?: string
+  tdClassName?: string
+}
 
 function resolveSerializer<TData>(
   column: DataTableFilterableColumn<TData>,
@@ -83,6 +89,14 @@ type BaseProps<TData, TValue> = {
   customCss?: string
   isShowAdvancedFilter?: boolean
   config?: TableConfigInput
+  /** Merged with default table card classes (e.g. `mt-0 flex-1 min-h-0`). */
+  cardClassName?: string
+  /** Merged with default `CardContent` classes for the table scroll area. */
+  cardContentClassName?: string
+  /** Applied to the wrapper around desktop + mobile toolbars (e.g. `mb-4` before the table card). */
+  toolbarClassName?: string
+  /** Merged with default classes on the pagination strip below the table. */
+  paginationFooterClassName?: string
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -176,6 +190,10 @@ export function DataTable<TData, TValue>({
   customCss,
   isShowAdvancedFilter,
   config: instanceConfig,
+  cardClassName,
+  cardContentClassName,
+  toolbarClassName,
+  paginationFooterClassName,
 }: DataTableProps<TData, TValue>) {
   const t = useTableTranslations()
   const resolvedConfig = useResolvedTableConfig(instanceConfig)
@@ -477,7 +495,7 @@ export function DataTable<TData, TValue>({
   return (
     <ResolvedTableConfigContext.Provider value={resolvedConfig}>
       {shouldShowFilter ? (
-        <>
+        <div className={cn('shrink-0', toolbarClassName)}>
           <div className="max-md:hidden">
             {shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter ? (
               <DataTableAdvancedToolbar
@@ -530,7 +548,7 @@ export function DataTable<TData, TValue>({
               isShowAdvancedFilter={shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter}
             />
           </div>
-        </>
+        </div>
       ) : null}
       {viewMode === 'cards' ? (
         <>
@@ -572,17 +590,24 @@ export function DataTable<TData, TValue>({
           ) : null}
         </>
       ) : (
-        <Card className="mt-3 overflow-hidden">
-          <CardContent className="overflow-x-auto p-0">
-            <Table>
+        <Card className={cn('mt-3 flex flex-col overflow-hidden', cardClassName)}>
+          <CardContent
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-hidden p-0',
+              cardContentClassName
+            )}
+          >
+            <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+              <Table>
               <TableHeader className="bg-muted/50">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       const sortDirection = header.column.getIsSorted()
+                      const colMeta = header.column.columnDef.meta as DataTableColumnMeta | undefined
                       return (
                         <TableHead
-                          className="text-nowrap"
+                          className={cn('text-nowrap', colMeta?.thClassName)}
                           key={header.id}
                           aria-sort={
                             sortDirection === 'asc'
@@ -619,11 +644,17 @@ export function DataTable<TData, TValue>({
                       data-state={row.getIsSelected() && 'selected'}
                       aria-rowindex={pageIndex * pageSize + rowIndex + 2}
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell className="max-w-60 text-ellipsis text-nowrap" key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
+                      {row.getVisibleCells().map((cell) => {
+                        const colMeta = cell.column.columnDef.meta as DataTableColumnMeta | undefined
+                        return (
+                          <TableCell
+                            className={cn('max-w-60 text-ellipsis text-nowrap', colMeta?.tdClassName)}
+                            key={cell.id}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        )
+                      })}
                     </TableRow>
                   ))
                 ) : (
@@ -658,9 +689,15 @@ export function DataTable<TData, TValue>({
                 )}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
           {shouldShowPagination ? (
-            <div className="space-y-2.5">
+            <div
+              className={cn(
+                'shrink-0 space-y-2.5 border-t border-border/60 bg-muted/15 px-2 py-3',
+                paginationFooterClassName
+              )}
+            >
               {isCursorPagination && cursorPaginationData ? (
                 <DataTablePagination
                   table={table}
