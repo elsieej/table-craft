@@ -1,5 +1,7 @@
 # react-table-craft
 
+This package is a fork of [react-table-craft](https://github.com/Ahmed-Elkhdrawy/table-craft) with some changes to make it more compatible with my personal projects.
+
 [![npm version](https://img.shields.io/npm/v/react-table-craft)](https://www.npmjs.com/package/react-table-craft)
 [![license](https://img.shields.io/npm/l/react-table-craft)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)

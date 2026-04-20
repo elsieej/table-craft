@@ -345,20 +345,21 @@ export function DataTableMobileToolbar<TData>({
                     ? customButtons
                         .filter((customButton) => Object.keys(customButton).length !== 0)
                         .map((customButton, index) => (
-                          <Button
-                            key={index}
-                            onClick={customButton.function}
-                            variant={'outline'}
-                            className={`${customButton.className ? customButton.className : ''} relative flex justify-center gap-2 text-nowrap text-sm`}
-                            {...customButton.attr}
-                          >
-                            {customButton.toolTip && (
-                              <ButtonTooltip content={customButton.toolTip}></ButtonTooltip>
-                            )}
-                            {customButton.text}
-                            {customButton.icon}
-                            {customButton.children}
-                          </Button>
+                          <DrawerClose asChild key={index}>
+                            <Button
+                              onClick={customButton.function}
+                              variant={'outline'}
+                              className={`${customButton.className ? customButton.className : ''} relative flex justify-center gap-2 text-nowrap text-sm`}
+                              {...customButton.attr}
+                            >
+                              {customButton.toolTip && (
+                                <ButtonTooltip content={customButton.toolTip}></ButtonTooltip>
+                              )}
+                              {customButton.text}
+                              {customButton.icon}
+                              {customButton.children}
+                            </Button>
+                          </DrawerClose>
                         ))
                     : React.isValidElement(customButtons)
                       ? customButtons

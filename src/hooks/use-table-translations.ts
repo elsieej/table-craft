@@ -1,6 +1,6 @@
 'use client'
 
-import { useGlobalTableConfig } from '../config/context'
+import { useGlobalTableConfig, useResolvedTableConfigContext } from '../config/context'
 
 /**
  * Built-in default English translation strings.
@@ -86,7 +86,9 @@ const DEFAULT_TRANSLATIONS: Record<string, string> = {
  * Otherwise falls back to built-in English strings.
  */
 export function useTableTranslations(): (key: string) => string {
-  const config = useGlobalTableConfig()
+  const globalConfig = useGlobalTableConfig()
+  const resolvedConfig = useResolvedTableConfigContext()
+  const config = resolvedConfig ?? globalConfig
 
   if (config.i18n.translationFn) {
     return config.i18n.translationFn

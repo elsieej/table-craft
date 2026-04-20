@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.8
+
+### Bug Fixes
+
+- Fix custom buttons in `DataTableMobileToolbar` not closing the drawer on click — buttons are now wrapped with `DrawerClose asChild` so tapping a custom action dismisses the drawer as expected
+- Fix `useTableTranslations` ignoring instance-level i18n config — the hook now checks the resolved 4-layer config (via `useResolvedTableConfigContext`) before falling back to global config, so per-instance `translationFn` overrides are respected
+- Fix `new URLSearchParams()` being recreated on every render in `DataTable` when no router is provided — stabilized with `useRef` to avoid unnecessary re-renders
+
+### Features
+
+- `useTableTranslations` now picks up i18n overrides set at the instance level (config prop on `<DataTable>`) and plugin level, not just the global `<TableConfigProvider>`
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.5
 
 ### Bug Fixes

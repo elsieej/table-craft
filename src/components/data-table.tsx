@@ -211,7 +211,8 @@ export function DataTable<TData, TValue>({
   const isManualSorting = isQueryPagination || isCursorPagination || isQuerySearch || isQueryFilter
 
   // Read URL params via router adapter (or use defaults)
-  const searchParams = router ? router.getSearchParams() : new URLSearchParams()
+  const emptySearchParams = React.useRef(new URLSearchParams()).current
+  const searchParams = router ? router.getSearchParams() : emptySearchParams
   const pathname = router ? router.getPathname() : ''
 
   const page = searchParams.get('page') ?? '1'
