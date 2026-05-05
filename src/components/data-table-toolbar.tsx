@@ -142,7 +142,7 @@ export function DataTableToolbar<TData>({
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {config.features.viewToggle && viewMode && onViewModeChange && (
           <div className="flex items-center rounded-lg border bg-muted/30 p-0.5">
             <button
@@ -172,7 +172,7 @@ export function DataTableToolbar<TData>({
           </div>
         )}
 
-        <div className="flex flex-1 items-center gap-3">
+        <div className="flex min-w-[200px] flex-1 basis-full xl:basis-auto items-center gap-3">
           {config.features.search && isQuerySearch && searchableQuery && searchableQuery.length > 0 && (
             <>
               {searchableQuery.map((column) => (
@@ -295,7 +295,7 @@ export function DataTableToolbar<TData>({
             )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 basis-full xl:basis-auto">
           {deleteRowsAction && table.getSelectedRowModel().rows.length > 0 ? (
             <Button
               aria-label="Delete selected rows"

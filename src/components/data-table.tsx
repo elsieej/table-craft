@@ -497,7 +497,7 @@ export function DataTable<TData, TValue>({
     <ResolvedTableConfigContext.Provider value={resolvedConfig}>
       {shouldShowFilter ? (
         <div className={cn('shrink-0', toolbarClassName)}>
-          <div className="max-md:hidden">
+          <div className="max-lg:hidden">
             {shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter ? (
               <DataTableAdvancedToolbar
                 table={table}
@@ -538,11 +538,13 @@ export function DataTable<TData, TValue>({
               />
             )}
           </div>
-          <div className="flex items-center justify-between md:hidden">
+          <div className="flex items-center justify-between lg:hidden">
             <DataTableMobileToolbar
               table={table}
               filterableColumns={filterableColumns}
               searchableColumns={searchableColumns}
+              isQuerySearch={isQuerySearch}
+              searchableQuery={isQuerySearch ? searchableQuery : []}
               addItemPagePath={addItemPagePath}
               isShowExportButtons={isShowExportButtons}
               customButtons={customButtons}
@@ -600,7 +602,7 @@ export function DataTable<TData, TValue>({
           >
             <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
               <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader className="sticky top-0 z-10 bg-muted">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {

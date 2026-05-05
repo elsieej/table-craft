@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.9
+
+### Features
+
+- Add `SearchableSelect` — standalone combobox (Popover + Command + CommandInput) for searchable filter dropdowns usable in `customButtons` without any TanStack Table column coupling; exported as `SearchableSelect` and `SearchableSelectProps` (RFC 0003)
+- Add `isQuerySearch` / `searchableQuery` props to `DataTableMobileToolbar` — query search input now renders inline in the mobile toolbar row, always visible without opening the filter drawer
+
+### Bug Fixes
+
+- Fix sticky table header — `TableHeader` is now `sticky top-0 z-10 bg-muted`; removed `overflow-auto` from the `Table` wrapper so the header actually sticks during vertical scroll
+- Fix `drawer.tsx` TS2742 build error — replace inferred vaul re-exports with explicit portable React/DOM type annotations so `tsup` generates clean ESM + CJS + DTS output without the `--no-dts` workaround
+
+### Changes
+
+- Change toolbar breakpoint from `md` (768 px) to `lg` (1024 px) — tablets and iPads now consistently use the mobile drawer toolbar (RFC 0002)
+- At `lg`–`xl` (1024–1279 px), search input and action buttons each wrap to their own full-width row; at `xl`+ (≥ 1280 px) all controls sit in a single inline row
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.8
 
 ### Bug Fixes

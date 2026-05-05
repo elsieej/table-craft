@@ -5,10 +5,10 @@ import type { Table } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ar, enUS } from 'date-fns/locale'
 import { exportSelectedRowsCsv } from '../lib/csv-export'
-import { CalendarIcon, Check, Filter, ListFilter, Loader2, Plus, Rows3, Sheet, Type, X } from 'lucide-react'
+import { CalendarIcon, Check, Filter, ListFilter, Loader2, Plus, Rows3, Search, Sheet, Type, X } from 'lucide-react'
 import { useTableTranslations } from '../hooks/use-table-translations'
 
-import type { DataTableFilterableColumn, DataTableSearchableColumn } from '../types/table'
+import type { DataTableFilterableColumn, DataTableQuerySearchable, DataTableSearchableColumn } from '../types/table'
 import { cn } from '../lib/utils'
 import { useTableConfig } from '../config'
 import { Button } from './ui/button'
@@ -38,6 +38,8 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>
   filterableColumns?: DataTableFilterableColumn<TData>[]
   searchableColumns?: DataTableSearchableColumn<TData>[]
+  isQuerySearch?: boolean
+  searchableQuery?: DataTableQuerySearchable<TData>[]
   addItemPagePath?: {
     url: string
     text?: string
@@ -55,6 +57,8 @@ export function DataTableMobileToolbar<TData>({
   table,
   filterableColumns = [],
   searchableColumns = [],
+  isQuerySearch = false,
+  searchableQuery = [],
   addItemPagePath,
   isShowExportButtons = {
     isShow: true,
@@ -106,6 +110,22 @@ export function DataTableMobileToolbar<TData>({
 
   return (
     <Drawer>
+      <div className="flex flex-1 items-center gap-2">
+      {isQuerySearch && searchableQuery.length > 0 &&
+        searchableQuery.map((column) => (
+          <div className="relative flex-1" key={String(column.id)}>
+            <Search className="absolute start-3 top-2 h-4 w-4 text-muted-foreground" />
+            <Input
+              id={String(column.id)}
+              type={column?.type || 'text'}
+              placeholder={`${t('Filter')} ${column.title}...`}
+              onChange={column.handleInputChange}
+              defaultValue={column.defaultSearch || ''}
+              className="ps-9 h-8 w-full"
+            />
+          </div>
+        ))
+      }
       <DrawerTrigger asChild>
         <Button variant="outline" size={'sm'} className="h-8 px-2">
           {isFiltered ? (
@@ -129,19 +149,18 @@ export function DataTableMobileToolbar<TData>({
           {t('export-csv')}
         </Button>
       )}
-      {addItemPagePath ? (
-        addItemPagePath?.url ? (
-          <Button
-            onClick={goAddItemPage}
-            size="sm"
-            className="flex h-8 flex-row gap-3 px-2 text-sm"
-            disabled={isGoPath}
-          >
-            {isGoPath ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
-            {addItemPagePath.text ? addItemPagePath.text : t('add')}
-          </Button>
-        ) : null
+      {addItemPagePath?.url ? (
+        <Button
+          onClick={goAddItemPage}
+          size="sm"
+          className="flex h-8 flex-row gap-3 px-2 text-sm"
+          disabled={isGoPath}
+        >
+          {isGoPath ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
+          {addItemPagePath.text ? addItemPagePath.text : t('add')}
+        </Button>
       ) : null}
+      </div>
       <DrawerContent>
         <div className="mx-auto size-full max-w-sm text-sm">
           <DrawerHeader>
