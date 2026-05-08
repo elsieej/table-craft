@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.10
+
+### Features
+
+- Add `actionButtons?: React.ReactNode` prop to `ClientSideTable`, `DataTable`, `DataTableToolbar`, and `DataTableMobileToolbar` — renders inline alongside other toolbar controls on desktop, and **outside** the mobile filter drawer on mobile; designed for action buttons (e.g. Add) that are semantically unrelated to filtering
+- Add `mobileGroup?: 'action' | 'filter'` field to `CustomButtonProps` — for array-form `customButtons`, buttons tagged `'action'` render outside the filter drawer on mobile; `'filter'` (default) renders inside the drawer, preserving full backwards compatibility
+
+### Bug Fixes
+
+- Fix Filter drawer trigger appearing on tables with no filter content — the Filter button and drawer are now conditionally hidden when there are no searchable columns, filterable columns, advanced filters, or filter-group custom buttons; tables with only action buttons no longer show an empty drawer
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.9
 
 ### Features

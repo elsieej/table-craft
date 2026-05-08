@@ -85,6 +85,8 @@ type BaseProps<TData, TValue> = {
     fileName?: string
   }
   customButtons?: CustomButtonProps[] | React.ReactElement
+  /** Always rendered inline (desktop) and outside the mobile filter drawer. Use for action buttons like Add. */
+  actionButtons?: React.ReactNode
   isLoading?: boolean
   customCss?: string
   isShowAdvancedFilter?: boolean
@@ -175,6 +177,7 @@ export function DataTable<TData, TValue>({
     fileName: '',
   },
   customButtons,
+  actionButtons,
   isQueryPagination = false,
   paginationData,
   isCursorPagination,
@@ -513,6 +516,7 @@ export function DataTable<TData, TValue>({
                 addItemPagePath={addItemPagePath}
                 isShowExportButtons={isShowExportButtons}
                 customButtons={customButtons}
+                actionButtons={actionButtons}
                 customCss={customCss}
                 {...(isQuerySearch === true
                   ? {
@@ -548,6 +552,7 @@ export function DataTable<TData, TValue>({
               addItemPagePath={addItemPagePath}
               isShowExportButtons={isShowExportButtons}
               customButtons={customButtons}
+              actionButtons={actionButtons}
               isShowAdvancedFilter={shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter}
             />
           </div>

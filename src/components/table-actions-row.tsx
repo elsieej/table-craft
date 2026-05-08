@@ -24,6 +24,8 @@ export interface CustomButtonProps {
   attr?: any
   children?: React.ReactNode
   toolTip?: string
+  /** Controls mobile placement: 'action' renders outside the filter drawer, 'filter' (default) renders inside. */
+  mobileGroup?: 'action' | 'filter'
 }
 
 export interface MoreActionsProps {

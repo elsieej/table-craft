@@ -48,6 +48,8 @@ type BaseProps<TData> = {
     fileName?: string
   }
   customButtons?: CustomButtonProps[] | React.ReactElement
+  /** Always rendered inline (desktop) and outside the mobile filter drawer. Use for action buttons like Add. */
+  actionButtons?: React.ReactNode
   customCss?: string
 }
 
@@ -100,6 +102,7 @@ export function DataTableToolbar<TData>({
     fileName: '',
   },
   customButtons,
+  actionButtons,
   isQuerySearch = false,
   searchableQuery,
   isQueryFilter = false,
@@ -368,6 +371,7 @@ export function DataTableToolbar<TData>({
             : React.isValidElement(customButtons)
               ? customButtons
               : null}
+          {actionButtons}
           {addItemPagePath ? (
             addItemPagePath?.url ? (
               <Button

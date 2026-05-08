@@ -50,6 +50,8 @@ interface DataTableToolbarProps<TData> {
     fileName?: string
   }
   customButtons?: CustomButtonProps[] | React.ReactElement
+  /** Always rendered outside the mobile filter drawer. Use for action buttons like Add. */
+  actionButtons?: React.ReactNode
   isShowAdvancedFilter?: boolean
 }
 
@@ -66,6 +68,7 @@ export function DataTableMobileToolbar<TData>({
     fileName: '',
   },
   customButtons,
+  actionButtons,
   isShowAdvancedFilter = false,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
@@ -108,6 +111,21 @@ export function DataTableMobileToolbar<TData>({
     })
   }
 
+  const arrayCustomButtons = Array.isArray(customButtons)
+    ? customButtons.filter((b) => Object.keys(b).length !== 0)
+    : []
+  const mobileActionButtons = arrayCustomButtons.filter((b) => b.mobileGroup === 'action')
+  const filterButtons = arrayCustomButtons.filter((b) => b.mobileGroup !== 'action')
+  const reactNodeCustomButtons =
+    !Array.isArray(customButtons) && React.isValidElement(customButtons) ? customButtons : null
+
+  const hasFilterContent =
+    searchableColumns.length > 0 ||
+    filterableColumns.length > 0 ||
+    filterButtons.length > 0 ||
+    isShowAdvancedFilter ||
+    reactNodeCustomButtons !== null
+
   return (
     <Drawer>
       <div className="flex flex-1 items-center gap-2">
@@ -126,16 +144,33 @@ export function DataTableMobileToolbar<TData>({
           </div>
         ))
       }
-      <DrawerTrigger asChild>
-        <Button variant="outline" size={'sm'} className="h-8 px-2">
-          {isFiltered ? (
-            <span className="bg-main me-2 inline-flex size-3 rounded-full" />
-          ) : (
-            <Filter className="me-2 size-4" aria-hidden="true" />
-          )}
-          {t('Filter')}
+      {hasFilterContent && (
+        <DrawerTrigger asChild>
+          <Button variant="outline" size={'sm'} className="h-8 px-2">
+            {isFiltered ? (
+              <span className="bg-main me-2 inline-flex size-3 rounded-full" />
+            ) : (
+              <Filter className="me-2 size-4" aria-hidden="true" />
+            )}
+            {t('Filter')}
+          </Button>
+        </DrawerTrigger>
+      )}
+      {mobileActionButtons.map((btn, index) => (
+        <Button
+          key={index}
+          onClick={btn.function}
+          size="sm"
+          className={`${btn.className || ''} relative h-8 gap-1.5 text-sm`}
+          {...btn.attr}
+        >
+          {btn.toolTip && <ButtonTooltip content={btn.toolTip} />}
+          {btn.icon}
+          {btn.text}
+          {btn.children}
         </Button>
-      </DrawerTrigger>
+      ))}
+      {actionButtons}
       {isShowExportButtons.isShow && (
         <Button
           disabled={!table.getSelectedRowModel().rows.length}
@@ -161,6 +196,7 @@ export function DataTableMobileToolbar<TData>({
         </Button>
       ) : null}
       </div>
+      {hasFilterContent && (
       <DrawerContent>
         <div className="mx-auto size-full max-w-sm text-sm">
           <DrawerHeader>
@@ -359,30 +395,25 @@ export function DataTableMobileToolbar<TData>({
                   <Separator className="bg-main-300 my-2 h-px w-full" />
                 </div>
                 <div className="grid gap-4">
-                  <DataTableViewOptions table={table} />
-                  {customButtons && Array.isArray(customButtons)
-                    ? customButtons
-                        .filter((customButton) => Object.keys(customButton).length !== 0)
-                        .map((customButton, index) => (
-                          <DrawerClose asChild key={index}>
-                            <Button
-                              onClick={customButton.function}
-                              variant={'outline'}
-                              className={`${customButton.className ? customButton.className : ''} relative flex justify-center gap-2 text-nowrap text-sm`}
-                              {...customButton.attr}
-                            >
-                              {customButton.toolTip && (
-                                <ButtonTooltip content={customButton.toolTip}></ButtonTooltip>
-                              )}
-                              {customButton.text}
-                              {customButton.icon}
-                              {customButton.children}
-                            </Button>
-                          </DrawerClose>
-                        ))
-                    : React.isValidElement(customButtons)
-                      ? customButtons
-                      : null}
+                  {config.features.columnVisibility && <DataTableViewOptions table={table} />}
+                  {filterButtons.map((customButton, index) => (
+                    <DrawerClose asChild key={index}>
+                      <Button
+                        onClick={customButton.function}
+                        variant={'outline'}
+                        className={`${customButton.className ? customButton.className : ''} relative flex justify-center gap-2 text-nowrap text-sm`}
+                        {...customButton.attr}
+                      >
+                        {customButton.toolTip && (
+                          <ButtonTooltip content={customButton.toolTip}></ButtonTooltip>
+                        )}
+                        {customButton.text}
+                        {customButton.icon}
+                        {customButton.children}
+                      </Button>
+                    </DrawerClose>
+                  ))}
+                  {reactNodeCustomButtons}
                 </div>
               </div>
             </div>
@@ -404,6 +435,7 @@ export function DataTableMobileToolbar<TData>({
           </DrawerFooter>
         </div>
       </DrawerContent>
+      )}
     </Drawer>
   )
 }

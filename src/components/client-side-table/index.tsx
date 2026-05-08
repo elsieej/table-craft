@@ -32,6 +32,8 @@ type BaseProps<TData, TValue> = {
     fileName?: string
   }
   customButtons?: CustomButtonProps[] | React.ReactElement
+  /** Always rendered inline (desktop) and outside the mobile filter drawer. Use for action buttons like Add. */
+  actionButtons?: React.ReactNode
   withIndex?: boolean
   isLoading?: boolean
   customCss?: string
@@ -119,6 +121,7 @@ export function ClientSideTable<TData, TValue>({
     fileName: '',
   },
   customButtons,
+  actionButtons,
   withIndex = true,
   isQueryPagination = false,
   paginationData,
@@ -182,6 +185,7 @@ export function ClientSideTable<TData, TValue>({
       addItemPagePath={addItemPagePath}
       isShowExportButtons={isShowExportButtons}
       customButtons={customButtons}
+      actionButtons={actionButtons}
       floatingBar={true}
       isLoading={isLoading}
       customCss={customCss}

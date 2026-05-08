@@ -514,6 +514,7 @@ Plugins are merged in priority order (lower numbers merge first, higher numbers 
 | `DataTableRoleFilter` | Role-based filter with URL sync |
 | `DataTableLoading` | Loading skeleton |
 | `TableActionsRow` | Row-level action buttons |
+| `SearchableSelect` | Standalone searchable combobox for filter dropdowns |
 | `DataTableAdvancedToolbar` | Advanced toolbar with multi-filter |
 | `DataTableAdvancedFilter` | Advanced filter command palette |
 | `DataTableAdvancedFilterItem` | Individual advanced filter chip |
@@ -531,6 +532,8 @@ import type {
   DataTableFilterableColumn,
   DataTableFilterOption,
   FilterOptions,
+  CustomButtonProps,
+  SearchableSelectProps,
 
   // Filter serialization types
   FilterSerializer,
@@ -599,6 +602,113 @@ Show skeleton placeholders while data is being fetched:
 ```
 
 When `isLoading` is `true`, the table renders animated skeleton rows (table view) or skeleton cards (card view) matching the current page size. Pagination and toolbar remain interactive.
+
+## Toolbar Customization
+
+### Action Buttons vs Filter Buttons
+
+The toolbar supports two categories of custom buttons with distinct mobile behavior:
+
+| Prop / Field | Desktop | Mobile |
+|---|---|---|
+| `actionButtons` prop | Inline in toolbar | Always visible outside the filter drawer |
+| `customButtons` (array, `mobileGroup: 'filter'` or unset) | Inline in toolbar | Inside the Filter drawer |
+| `customButtons` (array, `mobileGroup: 'action'`) | Inline in toolbar | Always visible outside the filter drawer |
+| `customButtons` (ReactNode) | Inline in toolbar | Inside the Filter drawer |
+
+Use `actionButtons` for buttons that are unrelated to filtering (e.g. **Add**, **Import**). Use `customButtons` for filter controls (e.g. `SearchableSelect` dropdowns).
+
+### `actionButtons` prop
+
+A `ReactNode` rendered inline on desktop and **outside** the mobile filter drawer — always reachable on mobile without opening the drawer.
+
+```tsx
+import { ClientSideTable, SearchableSelect } from 'react-table-craft'
+import { Button } from './ui/button'
+import { Plus } from 'lucide-react'
+
+<ClientSideTable
+  columns={columns}
+  data={data}
+  // Filter dropdowns — go inside the mobile Filter drawer
+  customButtons={
+    <div className="flex items-center gap-2">
+      <SearchableSelect
+        value={status}
+        onValueChange={setStatus}
+        options={statusOptions}
+        placeholder="Filter status"
+      />
+    </div>
+  }
+  // Add button — always visible on mobile, never hidden in the drawer
+  actionButtons={
+    <Button onClick={openCreateDialog}>
+      <Plus className="size-4" />
+      Add
+    </Button>
+  }
+/>
+```
+
+### `mobileGroup` on `CustomButtonProps`
+
+For array-form `customButtons`, set `mobileGroup: 'action'` on any button that should stay visible on mobile outside the filter drawer.
+
+```tsx
+<ClientSideTable
+  columns={columns}
+  data={data}
+  customButtons={[
+    {
+      text: 'Add Item',
+      icon: <Plus className="size-4" />,
+      function: openCreateDialog,
+      className: 'bg-blue-600 text-white hover:bg-blue-700',
+      mobileGroup: 'action',  // renders outside the Filter drawer on mobile
+    },
+    {
+      text: 'Export',
+      icon: <Download className="size-4" />,
+      function: handleExport,
+      // mobileGroup not set → defaults to 'filter', renders inside the drawer
+    },
+  ]}
+/>
+```
+
+### Filter Drawer Visibility
+
+The mobile Filter button and drawer are **automatically hidden** when there is no filter content — i.e. no `searchableColumns`, `filterableColumns`, advanced filters, or `mobileGroup: 'filter'` custom buttons. Tables that have only action buttons show those directly with no Filter button.
+
+### `SearchableSelect`
+
+A standalone searchable combobox (Popover + Command) for filter dropdowns, usable in `customButtons` without any TanStack Table column coupling.
+
+```tsx
+import { SearchableSelect } from 'react-table-craft'
+
+<SearchableSelect
+  value={currentStatus}
+  onValueChange={(v) => setStatus(v)}
+  options={[
+    { label: 'Active', value: 'active' },
+    { label: 'Inactive', value: 'inactive' },
+  ]}
+  placeholder="Filter status"
+  allLabel="All statuses"
+  className="w-40"
+/>
+```
+
+| Prop | Type | Description |
+|---|---|---|
+| `value` | `string` | Currently selected value |
+| `onValueChange` | `(value: string) => void` | Called when selection changes; empty string means "All" |
+| `options` | `{ label: string; value: string }[]` | List of options |
+| `placeholder` | `string` | Trigger button label when nothing is selected |
+| `allLabel` | `string` | Label for the "show all" option (clears selection) |
+| `className` | `string` | Additional classes applied to the trigger button |
 
 ## Contributing
 
