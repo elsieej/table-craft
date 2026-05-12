@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.11
+
+### Features
+
+- Support `Infinity` as `defaultPageSize` (config) or `pageSize` prop — passing `Infinity` opts the table into "show all" mode; `effectivePageSize` is resolved to `data.length` so TanStack Table always receives a finite value and avoids the `0 × Infinity = NaN` slice bug; skeleton rows fall back to 10 in this mode; `per_page` is omitted from the URL rather than written as `Infinity`
+
+### Bug Fixes
+
+- Fix `defaultPageSize` config being silently ignored — `per_page` URL param defaulted to the hardcoded string `"10"` instead of `resolvedPageSize`, so `config.pagination.defaultPageSize` had no effect when no `?per_page=` param was present in the URL
+- Fix spurious dev warning when `defaultPageSize` is non-finite — `runDevValidation` now skips the `pageSizeOptions` membership check for `Infinity` (and any non-finite value) since it is an intentional sentinel, not a misconfiguration
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.10
 
 ### Features

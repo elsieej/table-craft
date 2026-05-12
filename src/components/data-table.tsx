@@ -209,6 +209,7 @@ export function DataTable<TData, TValue>({
   const shouldShowAdvancedFilter = isShowAdvancedFilter ?? resolvedConfig.features.advancedFilter
   const resolvedPageSize = defaultPageSize ?? resolvedConfig.pagination.defaultPageSize
 
+
   const isManualFiltering = isQuerySearch || isQueryFilter
   const isManualPagination = isQueryPagination || isCursorPagination
   const isManualSorting = isQueryPagination || isCursorPagination || isQuerySearch || isQueryFilter
@@ -221,9 +222,10 @@ export function DataTable<TData, TValue>({
   const page = searchParams.get('page') ?? '1'
   const pageAsNumber = Number(page)
   const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
-  const per_page = searchParams.get('per_page') ?? '10'
+  const per_page = searchParams.get('per_page') ?? String(resolvedPageSize)
   const perPageAsNumber = Number(per_page)
   const fallbackPerPage = isNaN(perPageAsNumber) ? resolvedPageSize : perPageAsNumber
+  const effectivePageSize = isFinite(fallbackPerPage) ? fallbackPerPage : (data?.length ?? 0)
   const sort = searchParams.get('sort')
   const [column, order] = sort?.split('.') ?? []
 
@@ -298,7 +300,7 @@ export function DataTable<TData, TValue>({
 
   const [{ pageIndex, pageSize }, setPagination] = React.useState<PaginationState>({
     pageIndex: fallbackPage - 1,
-    pageSize: fallbackPerPage,
+    pageSize: effectivePageSize,
   })
 
   const pagination = React.useMemo(
@@ -309,9 +311,9 @@ export function DataTable<TData, TValue>({
   React.useEffect(() => {
     setPagination({
       pageIndex: fallbackPage - 1,
-      pageSize: fallbackPerPage,
+      pageSize: effectivePageSize,
     })
-  }, [fallbackPage, fallbackPerPage])
+  }, [fallbackPage, effectivePageSize])
 
   // Sync pagination to URL via router adapter
   const paginationMountRef = React.useRef(true)
@@ -322,7 +324,7 @@ export function DataTable<TData, TValue>({
       return
     }
     const replaceUrl = router.replace || router.push
-    replaceUrl(`${pathname}?${createQueryString({ page: pageIndex + 1, per_page: pageSize })}`)
+    replaceUrl(`${pathname}?${createQueryString({ page: pageIndex + 1, per_page: isFinite(pageSize) ? pageSize : null })}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize, isQueryPagination, isCursorPagination])
 
@@ -562,7 +564,7 @@ export function DataTable<TData, TValue>({
         <>
           {isLoading ? (
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: pageSize }).map((_, i) => (
+              {Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
                 <Card key={i}>
                   <CardContent className="space-y-3 p-4">
                     <Skeleton className="h-5 w-3/4" />
@@ -636,7 +638,7 @@ export function DataTable<TData, TValue>({
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  Array.from({ length: pageSize }).map((_, i) => (
+                  Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
                     <TableRow key={i} className="hover:bg-transparent">
                       {Array.from({ length: columns.length }).map((_, j) => (
                         <TableCell key={j}>

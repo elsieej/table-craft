@@ -9,6 +9,7 @@ export function runDevValidation(config: TableConfig): void {
   if (!config.dev.warnings) return
 
   // Pagination sanity: defaultPageSize should be in pageSizeOptions
+  if (!isFinite(config.pagination.defaultPageSize)) return
   if (!config.pagination.pageSizeOptions.includes(config.pagination.defaultPageSize)) {
     console.warn(
       `[TableCraft] defaultPageSize (${config.pagination.defaultPageSize}) is not in pageSizeOptions [${config.pagination.pageSizeOptions.join(', ')}]. The page size dropdown may not show the default selection.`

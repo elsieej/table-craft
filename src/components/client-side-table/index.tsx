@@ -108,7 +108,7 @@ type TasksTableShellProps<TData, TValue> = BaseProps<TData, TValue> &
 export function ClientSideTable<TData, TValue>({
   data,
   pageCount,
-  pageSize = 10,
+  pageSize,
   columns: initialColumns,
   searchableColumns = [],
   showFilter = true,
