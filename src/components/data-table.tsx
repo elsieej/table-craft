@@ -14,6 +14,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   PaginationState,
+  Row,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -56,6 +57,7 @@ import { cn } from '../lib/utils'
 type DataTableColumnMeta = {
   thClassName?: string
   tdClassName?: string
+  cardHidden?: boolean
 }
 
 function resolveSerializer<TData>(
@@ -99,6 +101,9 @@ type BaseProps<TData, TValue> = {
   toolbarClassName?: string
   /** Merged with default classes on the pagination strip below the table. */
   paginationFooterClassName?: string
+  renderCard?: (row: Row<TData>) => React.ReactNode
+  /** Extra classes merged onto the card grid (e.g. `xl:grid-cols-4 overflow-y-auto`). */
+  cardGridClassName?: string
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -197,6 +202,8 @@ export function DataTable<TData, TValue>({
   cardContentClassName,
   toolbarClassName,
   paginationFooterClassName,
+  renderCard,
+  cardGridClassName,
 }: DataTableProps<TData, TValue>) {
   const t = useTableTranslations()
   const resolvedConfig = useResolvedTableConfig(instanceConfig)
@@ -255,7 +262,7 @@ export function DataTable<TData, TValue>({
     [searchParams]
   )
 
-  const [viewMode, setViewMode] = React.useState<ViewMode>('table')
+  const [viewMode, setViewMode] = React.useState<ViewMode>(resolvedConfig.features.defaultViewMode ?? 'table')
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 
@@ -563,7 +570,7 @@ export function DataTable<TData, TValue>({
       {viewMode === 'cards' ? (
         <>
           {isLoading ? (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={cn("mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", cardGridClassName)}>
               {Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
                 <Card key={i}>
                   <CardContent className="space-y-3 p-4">
@@ -575,7 +582,7 @@ export function DataTable<TData, TValue>({
               ))}
             </div>
           ) : (
-            <DataTableCardView table={table} />
+            <DataTableCardView table={table} renderCard={renderCard} gridClassName={cardGridClassName} />
           )}
           {shouldShowPagination ? (
             <Card className="mt-3 overflow-hidden">

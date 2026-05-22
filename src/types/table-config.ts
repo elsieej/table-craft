@@ -37,6 +37,8 @@ export interface TableFeatureFlags {
   rowSelection: boolean
   /** Show table/card view toggle. */
   viewToggle: boolean
+  /** Initial view mode when viewToggle is enabled. Defaults to 'table'. */
+  defaultViewMode: 'table' | 'cards'
   /** Show floating action bar for selected rows. */
   floatingBar: boolean
   /** Enable advanced filter builder UI. */

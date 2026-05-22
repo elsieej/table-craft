@@ -1,18 +1,24 @@
 'use client'
 
 import * as React from 'react'
-import { flexRender, Table } from '@tanstack/react-table'
+import { flexRender, Row, Table } from '@tanstack/react-table'
 import { Card, CardContent } from './ui/card'
 import { Checkbox } from './ui/checkbox'
 import { useTableTranslations } from '../hooks/use-table-translations'
 import { SearchX, RotateCcw } from 'lucide-react'
 import { Button } from './ui/button'
+import { cn } from '../lib/utils'
 
-interface DataTableCardViewProps<TData> {
+type CardColumnMeta = { cardHidden?: boolean }
+
+export interface DataTableCardViewProps<TData> {
   table: Table<TData>
+  renderCard?: (row: Row<TData>) => React.ReactNode
+  /** Extra classes merged onto the grid wrapper (e.g. `xl:grid-cols-4 overflow-y-auto`). */
+  gridClassName?: string
 }
 
-export function DataTableCardView<TData>({ table }: DataTableCardViewProps<TData>) {
+export function DataTableCardView<TData>({ table, renderCard, gridClassName }: DataTableCardViewProps<TData>) {
   const t = useTableTranslations()
   const rows = table.getRowModel().rows
 
@@ -43,8 +49,20 @@ export function DataTableCardView<TData>({ table }: DataTableCardViewProps<TData
     )
   }
 
+  const gridClass = cn('mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3', gridClassName)
+
+  if (renderCard) {
+    return (
+      <div className={gridClass}>
+        {rows.map((row) => (
+          <React.Fragment key={row.id}>{renderCard(row)}</React.Fragment>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={gridClass}>
       {rows.map((row) => {
         const visibleCells = row.getVisibleCells()
         return (
@@ -68,6 +86,8 @@ export function DataTableCardView<TData>({ table }: DataTableCardViewProps<TData
               <div className="space-y-2">
                 {visibleCells.map((cell) => {
                   if (cell.column.id === 'select') return null
+                  const meta = cell.column.columnDef.meta as CardColumnMeta | undefined
+                  if (meta?.cardHidden) return null
                   const header = cell.column.columnDef.header
                   const headerLabel =
                     typeof header === 'string' ? header : cell.column.id

@@ -15,6 +15,7 @@ export const DEFAULT_TABLE_CONFIG: Readonly<TableConfig> = Object.freeze({
     csvExport: true,
     rowSelection: true,
     viewToggle: true,
+    defaultViewMode: 'table' as const,
     floatingBar: false,
     advancedFilter: false,
     sorting: true,

@@ -43,6 +43,7 @@ type BaseProps<TData, TValue> = {
   cardContentClassName?: string
   toolbarClassName?: string
   paginationFooterClassName?: string
+  renderCard?: (row: Row<TData>) => React.ReactNode
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -142,6 +143,7 @@ export function ClientSideTable<TData, TValue>({
   cardContentClassName,
   toolbarClassName,
   paginationFooterClassName,
+  renderCard,
 }: TasksTableShellProps<TData, TValue>) {
   const t = useTableTranslations()
 
@@ -195,6 +197,7 @@ export function ClientSideTable<TData, TValue>({
       cardContentClassName={cardContentClassName}
       toolbarClassName={toolbarClassName}
       paginationFooterClassName={paginationFooterClassName}
+      renderCard={renderCard}
       {...(isQuerySearch
         ? { isQuerySearch: true as const, searchableQuery: searchableQuery }
         : {

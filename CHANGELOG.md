@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.1.13
+
+### Features
+
+- `DataTableCardView`: when `renderCard` is provided the row is now rendered directly via `React.Fragment` — the `Card`/`CardContent` shell, checkbox, and row-index header are **not** added, giving the render prop full control over the card's DOM structure (e.g. hero images, click-to-open wrappers)
+- Add `gridClassName?: string` prop to `DataTableCardView` — extra Tailwind classes merged onto the grid wrapper (e.g. `xl:grid-cols-4 overflow-y-auto`) without replacing the base responsive grid
+- Add `cardGridClassName?: string` prop to `DataTable` and `ClientSideTable` — forwarded as `gridClassName` to `DataTableCardView` and applied to the loading-skeleton grid so both states share the same layout
+- Add `defaultViewMode: 'table' | 'cards'` to `TableFeatureFlags` — sets the initial view mode when `viewToggle` is enabled; defaults to `'table'` in `DEFAULT_TABLE_CONFIG`; `DataTable` now reads `resolvedConfig.features.defaultViewMode` to seed its internal `viewMode` state instead of hardcoding `'table'`
+
+### Contributors
+
+- @elsieej
+
+## 0.1.12
+
+### Features
+
+- Add `renderCard?: (row: Row<TData>) => React.ReactNode` prop to `DataTableCardView`, `DataTable`, and `ClientSideTable` — when provided, replaces the default field-value cell list inside each card body while preserving the checkbox, row-index header, and card selection styles; gives full control over card layout (e.g. hero images, custom typography)
+- Add `cardHidden?: boolean` to `DataTableColumnMeta` — columns with this meta flag are skipped in the default card rendering without affecting the table view or requiring a full `renderCard` override
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.11
 
 ### Features
