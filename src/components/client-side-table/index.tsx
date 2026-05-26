@@ -44,6 +44,12 @@ type BaseProps<TData, TValue> = {
   toolbarClassName?: string
   paginationFooterClassName?: string
   renderCard?: (row: Row<TData>) => React.ReactNode
+  /** Controlled active view mode. When provided the component is fully controlled; omit to use internal state seeded by `defaultViewMode`. */
+  viewMode?: 'table' | 'cards'
+  /** Called whenever the active view mode changes. */
+  onViewModeChange?: (mode: 'table' | 'cards') => void
+  /** Called when a card is clicked in card view. Receives the TanStack row — use `row.original` for the raw data. */
+  onRowClick?: (row: Row<TData>) => void
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -144,6 +150,9 @@ export function ClientSideTable<TData, TValue>({
   toolbarClassName,
   paginationFooterClassName,
   renderCard,
+  viewMode,
+  onViewModeChange,
+  onRowClick,
 }: TasksTableShellProps<TData, TValue>) {
   const t = useTableTranslations()
 
@@ -198,6 +207,9 @@ export function ClientSideTable<TData, TValue>({
       toolbarClassName={toolbarClassName}
       paginationFooterClassName={paginationFooterClassName}
       renderCard={renderCard}
+      viewMode={viewMode}
+      onViewModeChange={onViewModeChange}
+      onRowClick={onRowClick}
       {...(isQuerySearch
         ? { isQuerySearch: true as const, searchableQuery: searchableQuery }
         : {

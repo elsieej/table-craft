@@ -5,7 +5,7 @@ import type { Table } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ar, enUS } from 'date-fns/locale'
 import { exportSelectedRowsCsv } from '../lib/csv-export'
-import { CalendarIcon, Check, Filter, ListFilter, Loader2, Plus, Rows3, Search, Sheet, Type, X } from 'lucide-react'
+import { CalendarIcon, Check, Filter, LayoutGrid, ListFilter, Loader2, Plus, Rows3, Search, Sheet, TableIcon, Type, X } from 'lucide-react'
 import { useTableTranslations } from '../hooks/use-table-translations'
 
 import type { DataTableFilterableColumn, DataTableQuerySearchable, DataTableSearchableColumn } from '../types/table'
@@ -53,6 +53,8 @@ interface DataTableToolbarProps<TData> {
   /** Always rendered outside the mobile filter drawer. Use for action buttons like Add. */
   actionButtons?: React.ReactNode
   isShowAdvancedFilter?: boolean
+  viewMode?: 'table' | 'cards'
+  onViewModeChange?: (mode: 'table' | 'cards') => void
 }
 
 export function DataTableMobileToolbar<TData>({
@@ -70,6 +72,8 @@ export function DataTableMobileToolbar<TData>({
   customButtons,
   actionButtons,
   isShowAdvancedFilter = false,
+  viewMode,
+  onViewModeChange,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
   const [isGoPath, setGoPath] = React.useState(false)
@@ -129,6 +133,32 @@ export function DataTableMobileToolbar<TData>({
   return (
     <Drawer>
       <div className="flex flex-1 items-center gap-2">
+      {config.features.viewToggle && viewMode && onViewModeChange && (
+        <div className="flex items-center rounded-lg border bg-muted/30 p-0.5">
+          <button
+            onClick={() => onViewModeChange('table')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+              viewMode === 'table'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <TableIcon className="size-3.5" />
+          </button>
+          <button
+            onClick={() => onViewModeChange('cards')}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
+              viewMode === 'cards'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <LayoutGrid className="size-3.5" />
+          </button>
+        </div>
+      )}
       {isQuerySearch && searchableQuery.length > 0 &&
         searchableQuery.map((column) => (
           <div className="relative flex-1" key={String(column.id)}>

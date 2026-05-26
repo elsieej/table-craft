@@ -14,11 +14,13 @@ type CardColumnMeta = { cardHidden?: boolean }
 export interface DataTableCardViewProps<TData> {
   table: Table<TData>
   renderCard?: (row: Row<TData>) => React.ReactNode
-  /** Extra classes merged onto the grid wrapper (e.g. `xl:grid-cols-4 overflow-y-auto`). */
+  /** Extra classes merged onto the card grid (e.g. `xl:grid-cols-4 overflow-y-auto`). */
   gridClassName?: string
+  /** Called when a card is clicked. Receives the TanStack row — use `row.original` for the raw data. */
+  onRowClick?: (row: Row<TData>) => void
 }
 
-export function DataTableCardView<TData>({ table, renderCard, gridClassName }: DataTableCardViewProps<TData>) {
+export function DataTableCardView<TData>({ table, renderCard, gridClassName, onRowClick }: DataTableCardViewProps<TData>) {
   const t = useTableTranslations()
   const rows = table.getRowModel().rows
 
@@ -54,7 +56,13 @@ export function DataTableCardView<TData>({ table, renderCard, gridClassName }: D
     return (
       <div className={gridClass}>
         {rows.map((row) => (
-          <React.Fragment key={row.id}>{renderCard(row)}</React.Fragment>
+          <div
+            key={row.id}
+            onClick={onRowClick ? () => onRowClick(row) : undefined}
+            className={cn(onRowClick && 'cursor-pointer')}
+          >
+            {renderCard(row)}
+          </div>
         ))}
       </div>
     )
@@ -68,7 +76,11 @@ export function DataTableCardView<TData>({ table, renderCard, gridClassName }: D
           <Card
             key={row.id}
             data-state={row.getIsSelected() && 'selected'}
-            className="transition-colors data-[state=selected]:border-primary/50 data-[state=selected]:bg-primary/5"
+            onClick={onRowClick ? () => onRowClick(row) : undefined}
+            className={cn(
+              'transition-colors data-[state=selected]:border-primary/50 data-[state=selected]:bg-primary/5',
+              onRowClick && 'cursor-pointer'
+            )}
           >
             <CardContent className="p-4">
               <div className="mb-3 flex items-center gap-2">

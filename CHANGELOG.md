@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.15
+
+### Features
+
+- Add `viewMode` / `onViewModeChange` controlled props to `DataTable` and `ClientSideTable` — when `viewMode` is provided the active mode is fully driven externally; when omitted the component stays uncontrolled (seeded from `defaultViewMode` in config); `onViewModeChange` fires on every toggle in both modes
+- Fix view mode toggle disappearing on mobile — the Bảng/Thẻ toggle was only rendered inside `max-lg:hidden` (desktop toolbar); `DataTableMobileToolbar` now accepts `viewMode` / `onViewModeChange` and renders an icon-only compact toggle (guarded by `config.features.viewToggle`) as the first item in the mobile toolbar row
+- Add `onRowClick?: (row: Row<TData>) => void` to `DataTableCardView`, `DataTable`, and `ClientSideTable` — clicking any card calls the callback with the full TanStack `Row` (use `row.original` for raw data); `cursor-pointer` is applied automatically when the prop is set; default card path attaches `onClick` directly to `<Card>`; `renderCard` path wraps the custom node in a `<div>` with `onClick`; fully opt-in with no behavior change when omitted
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.14
 
 ### Bug Fixes

@@ -104,6 +104,12 @@ type BaseProps<TData, TValue> = {
   renderCard?: (row: Row<TData>) => React.ReactNode
   /** Extra classes merged onto the card grid (e.g. `xl:grid-cols-4 overflow-y-auto`). */
   cardGridClassName?: string
+  /** Controlled active view mode. When provided the component is fully controlled; omit to use internal state seeded by `defaultViewMode`. */
+  viewMode?: ViewMode
+  /** Called whenever the active view mode changes (both controlled and uncontrolled). */
+  onViewModeChange?: (mode: ViewMode) => void
+  /** Called when a card is clicked in card view. Receives the TanStack row — use `row.original` for the raw data. */
+  onRowClick?: (row: Row<TData>) => void
 }
 
 type QueryFilterProps<TData, TValue> = {
@@ -204,6 +210,9 @@ export function DataTable<TData, TValue>({
   paginationFooterClassName,
   renderCard,
   cardGridClassName,
+  viewMode: viewModeProp,
+  onViewModeChange,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const t = useTableTranslations()
   const resolvedConfig = useResolvedTableConfig(instanceConfig)
@@ -262,7 +271,12 @@ export function DataTable<TData, TValue>({
     [searchParams]
   )
 
-  const [viewMode, setViewMode] = React.useState<ViewMode>(resolvedConfig.features.defaultViewMode ?? 'table')
+  const [internalViewMode, setInternalViewMode] = React.useState<ViewMode>(resolvedConfig.features.defaultViewMode ?? 'table')
+  const viewMode = viewModeProp ?? internalViewMode
+  const handleViewModeChange = React.useCallback((mode: ViewMode) => {
+    if (viewModeProp === undefined) setInternalViewMode(mode)
+    onViewModeChange?.(mode)
+  }, [viewModeProp, onViewModeChange])
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 
@@ -521,7 +535,7 @@ export function DataTable<TData, TValue>({
               <DataTableToolbar
                 table={table}
                 viewMode={viewMode}
-                onViewModeChange={setViewMode}
+                onViewModeChange={handleViewModeChange}
                 addItemPagePath={addItemPagePath}
                 isShowExportButtons={isShowExportButtons}
                 customButtons={customButtons}
@@ -563,6 +577,8 @@ export function DataTable<TData, TValue>({
               customButtons={customButtons}
               actionButtons={actionButtons}
               isShowAdvancedFilter={shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter}
+              viewMode={viewMode}
+              onViewModeChange={handleViewModeChange}
             />
           </div>
         </div>
@@ -583,7 +599,7 @@ export function DataTable<TData, TValue>({
                 ))}
               </div>
             ) : (
-              <DataTableCardView table={table} renderCard={renderCard} gridClassName={cardGridClassName} />
+              <DataTableCardView table={table} renderCard={renderCard} gridClassName={cardGridClassName} onRowClick={onRowClick} />
             )}
           </div>
           {shouldShowPagination ? (
