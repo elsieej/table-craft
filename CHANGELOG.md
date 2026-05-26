@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.14
+
+### Bug Fixes
+
+- Fix empty state and card view not filling container height — card mode wrapper now receives `cardClassName` (same as table mode) so consumer-supplied height constraints (`flex-1 min-h-0`, fixed heights, etc.) apply consistently to both view modes
+- Fix table mode empty state dead space — the empty state is no longer rendered inside a `<TableRow>`; instead it is a `flex-1` sibling div of `<Table>` within a `flex flex-col` scroll wrapper, so it fills and vertically centers within the full available height rather than leaving empty background below a short table row
+- Fix spacing between toolbar and content card being silently overridden — `mt-3` was in the base classes merged with `cardClassName` via `tailwind-merge`, so a consumer-supplied `mt-0` (as shown in prop docs) zeroed the gap; spacing is now `pb-3` on the toolbar wrapper div which is unaffected by `cardClassName`
+- Fix inconsistent layout between table and card view modes — card mode now uses the same outer `Card` + `border-t` pagination structure as table mode (single card, pagination embedded with a separator) instead of two separate floating cards; `cardClassName` and `paginationFooterClassName` apply to both modes identically
+- Fix empty state text not centered — table mode empty state `<div className="space-y-1">` was missing `text-center`, causing the heading and hint to be left-aligned while the icon above was centered
+- Fix empty state vertical position inconsistency when toggling views — in table mode the empty state sits below the `h-10` column header row; card mode had no equivalent offset so the text appeared higher after switching; a `h-10 shrink-0` spacer is now prepended to the card view empty state to match the header height and keep content at the same position in both modes
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.13
 
 ### Features

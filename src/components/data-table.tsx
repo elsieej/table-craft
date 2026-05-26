@@ -508,7 +508,7 @@ export function DataTable<TData, TValue>({
   return (
     <ResolvedTableConfigContext.Provider value={resolvedConfig}>
       {shouldShowFilter ? (
-        <div className={cn('shrink-0', toolbarClassName)}>
+        <div className={cn('shrink-0 pb-3', toolbarClassName)}>
           <div className="max-lg:hidden">
             {shouldShowAdvancedFilter && !isQuerySearch && !isQueryFilter ? (
               <DataTableAdvancedToolbar
@@ -568,53 +568,53 @@ export function DataTable<TData, TValue>({
         </div>
       ) : null}
       {viewMode === 'cards' ? (
-        <>
-          {isLoading ? (
-            <div className={cn("mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", cardGridClassName)}>
-              {Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="space-y-3 p-4">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <DataTableCardView table={table} renderCard={renderCard} gridClassName={cardGridClassName} />
-          )}
-          {shouldShowPagination ? (
-            <Card className="mt-3 overflow-hidden">
-              <div className="space-y-2.5">
-                {isCursorPagination && cursorPaginationData ? (
-                  <DataTablePagination
-                    table={table}
-                    isCursorPagination={true}
-                    cursorPaginationData={cursorPaginationData}
-                  />
-                ) : isQueryPagination && paginationData ? (
-                  <DataTablePagination
-                    table={table}
-                    isQueryPagination={true}
-                    paginationData={paginationData}
-                  />
-                ) : (
-                  <DataTablePagination table={table} isQueryPagination={false} />
-                )}
+        <Card className={cn('flex flex-col overflow-hidden', cardClassName)}>
+          <div className="min-h-0 flex-1 overflow-y-auto p-3 flex flex-col">
+            {isLoading ? (
+              <div className={cn("mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", cardGridClassName)}>
+                {Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="space-y-3 p-4">
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-full" />
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </Card>
+            ) : (
+              <DataTableCardView table={table} renderCard={renderCard} gridClassName={cardGridClassName} />
+            )}
+          </div>
+          {shouldShowPagination ? (
+            <div className={cn('shrink-0 space-y-2.5 border-t border-border/60 bg-muted/15 px-2 py-3', paginationFooterClassName)}>
+              {isCursorPagination && cursorPaginationData ? (
+                <DataTablePagination
+                  table={table}
+                  isCursorPagination={true}
+                  cursorPaginationData={cursorPaginationData}
+                />
+              ) : isQueryPagination && paginationData ? (
+                <DataTablePagination
+                  table={table}
+                  isQueryPagination={true}
+                  paginationData={paginationData}
+                />
+              ) : (
+                <DataTablePagination table={table} isQueryPagination={false} />
+              )}
+            </div>
           ) : null}
-        </>
+        </Card>
       ) : (
-        <Card className={cn('mt-3 flex flex-col overflow-hidden', cardClassName)}>
+        <Card className={cn('flex flex-col overflow-hidden', cardClassName)}>
           <CardContent
             className={cn(
               'flex min-h-0 flex-1 flex-col overflow-hidden p-0',
               cardContentClassName
             )}
           >
-            <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto flex flex-col">
               <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -643,9 +643,9 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
+              {isLoading ? (
+                <TableBody>
+                  {Array.from({ length: isFinite(fallbackPerPage) ? pageSize : 10 }).map((_, i) => (
                     <TableRow key={i} className="hover:bg-transparent">
                       {Array.from({ length: columns.length }).map((_, j) => (
                         <TableCell key={j}>
@@ -653,9 +653,11 @@ export function DataTable<TData, TValue>({
                         </TableCell>
                       ))}
                     </TableRow>
-                  ))
-                ) : table.getRowModel()?.rows?.length ? (
-                  table.getRowModel()?.rows.map((row, rowIndex) => (
+                  ))}
+                </TableBody>
+              ) : table.getRowModel()?.rows?.length ? (
+                <TableBody>
+                  {table.getRowModel()?.rows.map((row, rowIndex) => (
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
@@ -673,39 +675,36 @@ export function DataTable<TData, TValue>({
                         )
                       })}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="py-16 text-center">
-                      <div className="flex flex-col items-center gap-3 px-4">
-                        <SearchX className="size-10 text-muted-foreground/50" aria-hidden="true" />
-                        <div className="space-y-1">
-                          <p className="font-semibold">{t('no-records-found')}</p>
-                          <p className="text-balance text-sm text-muted-foreground">{t('no-records-hint')}</p>
-                        </div>
-                        {(table.getState().columnFilters.length > 0 || (isQueryFilter && currentFilters && Object.keys(currentFilters).length > 0)) && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="mt-1 gap-1.5"
-                            onClick={() => {
-                              if (isQueryFilter && onClearFilters) {
-                                onClearFilters()
-                              } else {
-                                table.resetColumnFilters()
-                              }
-                            }}
-                          >
-                            <RotateCcw className="size-3.5" aria-hidden="true" />
-                            {t('reset-filters')}
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
+                  ))}
+                </TableBody>
+              ) : null}
             </Table>
+            {!isLoading && !table.getRowModel()?.rows?.length && (
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
+                <SearchX className="size-10 text-muted-foreground/50" aria-hidden="true" />
+                <div className="space-y-1 text-center">
+                  <p className="font-semibold">{t('no-records-found')}</p>
+                  <p className="text-balance text-sm text-muted-foreground">{t('no-records-hint')}</p>
+                </div>
+                {(table.getState().columnFilters.length > 0 || (isQueryFilter && currentFilters && Object.keys(currentFilters).length > 0)) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-1 gap-1.5"
+                    onClick={() => {
+                      if (isQueryFilter && onClearFilters) {
+                        onClearFilters()
+                      } else {
+                        table.resetColumnFilters()
+                      }
+                    }}
+                  >
+                    <RotateCcw className="size-3.5" aria-hidden="true" />
+                    {t('reset-filters')}
+                  </Button>
+                )}
+              </div>
+            )}
             </div>
           </CardContent>
           {shouldShowPagination ? (

@@ -24,32 +24,31 @@ export function DataTableCardView<TData>({ table, renderCard, gridClassName }: D
 
   if (!rows.length) {
     return (
-      <Card className="mt-3">
-        <CardContent className="py-16">
-          <div className="flex flex-col items-center gap-3">
-            <SearchX className="size-10 text-muted-foreground/50" aria-hidden="true" />
-            <div className="space-y-1 text-center">
-              <p className="font-semibold">{t('no-records-found')}</p>
-              <p className="text-sm text-muted-foreground">{t('no-records-hint')}</p>
-            </div>
-            {table.getState().columnFilters.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-1 gap-1.5"
-                onClick={() => table.resetColumnFilters()}
-              >
-                <RotateCcw className="size-3.5" aria-hidden="true" />
-                {t('reset-filters')}
-              </Button>
-            )}
+      <>
+        <div className="h-10 shrink-0" />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
+          <SearchX className="size-10 text-muted-foreground/50" aria-hidden="true" />
+          <div className="space-y-1 text-center">
+            <p className="font-semibold">{t('no-records-found')}</p>
+            <p className="text-sm text-muted-foreground">{t('no-records-hint')}</p>
           </div>
-        </CardContent>
-      </Card>
+          {table.getState().columnFilters.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-1 gap-1.5"
+              onClick={() => table.resetColumnFilters()}
+            >
+              <RotateCcw className="size-3.5" aria-hidden="true" />
+              {t('reset-filters')}
+            </Button>
+          )}
+        </div>
+      </>
     )
   }
 
-  const gridClass = cn('mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3', gridClassName)
+  const gridClass = cn('mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3', gridClassName)
 
   if (renderCard) {
     return (
