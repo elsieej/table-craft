@@ -271,12 +271,33 @@ export function DataTable<TData, TValue>({
     [searchParams]
   )
 
-  const [internalViewMode, setInternalViewMode] = React.useState<ViewMode>(resolvedConfig.features.defaultViewMode ?? 'table')
+  const defaultViewMode = resolvedConfig.features.defaultViewMode ?? 'table'
+  const urlViewRaw = (router && viewModeProp === undefined) ? searchParams.get('view') : null
+  const urlView: ViewMode | null = urlViewRaw === 'cards' || urlViewRaw === 'table' ? urlViewRaw : null
+  const [internalViewMode, setInternalViewMode] = React.useState<ViewMode>(urlView ?? defaultViewMode)
   const viewMode = viewModeProp ?? internalViewMode
   const handleViewModeChange = React.useCallback((mode: ViewMode) => {
     if (viewModeProp === undefined) setInternalViewMode(mode)
     onViewModeChange?.(mode)
   }, [viewModeProp, onViewModeChange])
+
+  // Sync viewMode to URL via router adapter (uncontrolled only)
+  const viewModeMountRef = React.useRef(true)
+  React.useEffect(() => {
+    if (viewModeProp !== undefined || !router) return
+    if (viewModeMountRef.current) {
+      viewModeMountRef.current = false
+      return
+    }
+    const currentParams = new URLSearchParams(router.getSearchParams().toString())
+    if (viewMode !== defaultViewMode) {
+      currentParams.set('view', viewMode)
+    } else {
+      currentParams.delete('view')
+    }
+    const replaceUrl = router.replace || router.push
+    replaceUrl(`${router.getPathname()}?${currentParams.toString()}`)
+  }, [viewModeProp, router, viewMode, defaultViewMode])
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 

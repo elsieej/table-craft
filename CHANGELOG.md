@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.16
+
+### Features
+
+- Sync `viewMode` to URL query param (`?view=table|cards`) via the router adapter in uncontrolled mode — the active view is written to `?view=` on change and omitted when it matches `defaultViewMode`; controlled mode (`viewMode` prop provided) never touches the URL; initial state is seeded from `?view=` on mount
+
+### Changes
+
+- Fix `viewMode` URL sync effect dependency array — replaced `createQueryString` closure dependency (which caused the effect to re-run on every filter/pagination URL change) with direct `router.getSearchParams()` / `router.getPathname()` reads inside the effect body; deps are now `[viewModeProp, router, viewMode, defaultViewMode]`; removed `// eslint-disable-next-line react-hooks/exhaustive-deps` suppression
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.15
 
 ### Features
