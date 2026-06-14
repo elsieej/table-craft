@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.17
+
+### Bug Fixes
+
+- Replace `ChevronsUpDown` with `ChevronDown` icon in `SearchableSelect` trigger button — the double-chevron implied a resizable/draggable interaction; a single down-chevron better matches the dropdown affordance
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.16
 
 ### Features

@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useTableTranslations } from '../hooks/use-table-translations'
 import { Button } from './ui/button'
@@ -64,7 +64,7 @@ export function SearchableSelect({
           <span className={cn('truncate text-sm', value ? 'text-foreground' : 'text-muted-foreground')}>
             {selectedLabel ?? placeholder ?? allLabel ?? t('all')}
           </span>
-          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+          <ChevronDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[220px] p-0" align="start">
