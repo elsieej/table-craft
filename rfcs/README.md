@@ -30,6 +30,10 @@ RFCs are how we propose and discuss significant changes to react-table-craft.
 
 Use sequential numbering: `0001-feature-name.md`, `0002-another-feature.md`, etc.
 
-## Active RFCs
+## Implemented RFCs
 
-_None yet — be the first!_
+- [0001-array-serialization.md](./0001-array-serialization.md) — configurable filter serialization
+- [0002-responsive-toolbar.md](./0002-responsive-toolbar.md)
+- [0003-searchable-select.md](./0003-searchable-select.md)
+- [0004-async-searchable-select.md](./0004-async-searchable-select.md)
+- [0005-render-card.md](./0005-render-card.md) — retroactive doc for renderCard/cardHidden/gridClassName/defaultViewMode (v0.1.12–0.1.13)

@@ -15,6 +15,8 @@ export { DataTableFacetedFilter } from './components/data-table-faceted-filter'
 export { DataTableSingleSelectFilter } from './components/data-table-single-select-filter'
 export { SearchableSelect } from './components/searchable-select'
 export type { SearchableSelectProps } from './components/searchable-select'
+export { AsyncSearchableSelect } from './components/async-searchable-select'
+export type { AsyncSearchableSelectProps } from './components/async-searchable-select'
 export { DataTableLoading } from './components/data-table-loading'
 export { default as TableActionsRow } from './components/table-actions-row'
 export type { CustomButtonProps, MoreActionsProps } from './components/table-actions-row'
@@ -52,6 +54,9 @@ export type {
   SerializedResult,
   SerializedSingleKey,
   SerializedMultiKey,
+  AsyncOptionsFetchParams,
+  AsyncOptionsFetchResult,
+  AsyncOptionsFetcher,
 } from './types/table'
 
 export type {

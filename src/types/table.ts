@@ -25,7 +25,27 @@ export interface Option {
   label: string
   value: string
   icon?: ComponentType<{ className?: string }>
+  /** Secondary text rendered after `label` in the option row (e.g. a code), styled as small monospace. */
+  description?: string
 }
+
+/** Params passed to an AsyncSearchableSelect's fetchOptions callback for a given page request. */
+export interface AsyncOptionsFetchParams {
+  search: string
+  page: number
+  pageSize: number
+}
+
+/** Result returned by an AsyncSearchableSelect's fetchOptions callback for a given page request. */
+export interface AsyncOptionsFetchResult {
+  options: Option[]
+  hasMore: boolean
+}
+
+/** Fetches a page of options for AsyncSearchableSelect, given the current search text and page. */
+export type AsyncOptionsFetcher = (
+  params: AsyncOptionsFetchParams
+) => Promise<AsyncOptionsFetchResult>
 
 /** Configuration for a text-searchable column (client-side filtering). */
 export interface DataTableSearchableColumn<TData> {

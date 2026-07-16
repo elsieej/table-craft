@@ -27,6 +27,13 @@ export interface SearchableSelectProps {
   emptyText?: string
   className?: string
   disabled?: boolean
+  /**
+   * Overrides how the trigger renders the current selection (e.g. an avatar + name, a badge).
+   * Receives the matched `Option` (or `undefined` if `value` isn't among `options`) and the raw
+   * `value`. Only called when `value` is non-empty; falls back to the default label rendering
+   * when omitted.
+   */
+  renderSelected?: (option: Option | undefined, value: string) => React.ReactNode
 }
 
 export function SearchableSelect({
@@ -39,11 +46,13 @@ export function SearchableSelect({
   emptyText,
   className,
   disabled,
+  renderSelected,
 }: SearchableSelectProps) {
   const t = useTableTranslations()
   const [open, setOpen] = React.useState(false)
 
-  const selectedLabel = options.find((o) => o.value === value)?.label
+  const selectedOption = options.find((o) => o.value === value)
+  const selectedLabel = selectedOption?.label
 
   const handleSelect = (selected: string) => {
     onValueChange(selected === value ? '' : selected)
@@ -61,9 +70,13 @@ export function SearchableSelect({
           disabled={disabled}
           className={cn('h-8 justify-between gap-1.5 font-normal', className)}
         >
-          <span className={cn('truncate text-sm', value ? 'text-foreground' : 'text-muted-foreground')}>
-            {selectedLabel ?? placeholder ?? allLabel ?? t('all')}
-          </span>
+          {value && renderSelected ? (
+            renderSelected(selectedOption, value)
+          ) : (
+            <span className={cn('truncate text-sm', value ? 'text-foreground' : 'text-muted-foreground')}>
+              {selectedLabel ?? placeholder ?? allLabel ?? t('all')}
+            </span>
+          )}
           <ChevronDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -86,15 +99,20 @@ export function SearchableSelect({
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.label}
+                  value={option.description ? `${option.label} ${option.description}` : option.label}
                   onSelect={() => handleSelect(option.value)}
                 >
                   {option.icon && (
                     <option.icon className="me-2 size-4 text-muted-foreground" aria-hidden />
                   )}
-                  {option.label}
+                  <span className="truncate">{option.label}</span>
+                  {option.description && (
+                    <span className="ms-1.5 shrink-0 font-mono text-xs text-muted-foreground">
+                      {option.description}
+                    </span>
+                  )}
                   <Check
-                    className={cn('ms-auto size-4', value === option.value ? 'opacity-100' : 'opacity-0')}
+                    className={cn('ms-auto size-4 shrink-0', value === option.value ? 'opacity-100' : 'opacity-0')}
                   />
                 </CommandItem>
               ))}

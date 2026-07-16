@@ -235,10 +235,16 @@ export function DataTable<TData, TValue>({
   const searchParams = router ? router.getSearchParams() : emptySearchParams
   const pathname = router ? router.getPathname() : ''
 
-  const page = searchParams.get('page') ?? '1'
+  const page =
+    isQueryPagination && paginationData
+      ? String(paginationData.paginationResponse.meta.current_page)
+      : (searchParams.get('page') ?? '1')
   const pageAsNumber = Number(page)
   const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
-  const per_page = searchParams.get('per_page') ?? String(resolvedPageSize)
+  const per_page =
+    isQueryPagination && paginationData
+      ? String(paginationData.paginationResponse.meta.per_page)
+      : (searchParams.get('per_page') ?? String(resolvedPageSize))
   const perPageAsNumber = Number(per_page)
   const fallbackPerPage = isNaN(perPageAsNumber) ? resolvedPageSize : perPageAsNumber
   const effectivePageSize = isFinite(fallbackPerPage) ? fallbackPerPage : (data?.length ?? 0)

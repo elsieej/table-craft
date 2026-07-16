@@ -165,17 +165,11 @@ export function ClientSideTable<TData, TValue>({
               header: ({ column }: { column: Column<TData> }) => (
                 <DataTableColumnHeader column={column} title={t('row-number')} />
               ),
-              cell: ({ row, table }: { row: Row<TData>; table: Table<TData> }) => (
-                <div className="w-full">
-                  {table.getState().pagination.pageIndex + 1 === 1
-                    ? row.index + 1
-                    : table.getState().pagination.pageIndex + 1 > 1
-                      ? table.getState().pagination.pageIndex *
-                          table.getState().pagination.pageSize +
-                        (row.index + 1)
-                      : row.index + 1}
-                </div>
-              ),
+              cell: ({ row, table }: { row: Row<TData>; table: Table<TData> }) => {
+                const { pageIndex, pageSize } = table.getState().pagination
+                const positionInPage = table.getRowModel().rows.findIndex((r) => r.id === row.id)
+                return <div className="w-full">{pageIndex * pageSize + positionInPage + 1}</div>
+              },
               enableSorting: false,
               enableHiding: false,
             },

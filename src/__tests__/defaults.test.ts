@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { DEFAULT_TABLE_CONFIG } from '../config/defaults'
+import { dotSeparated } from '../serializers/filter-serializers'
 
 describe('DEFAULT_TABLE_CONFIG', () => {
   it('is frozen at the top level', () => {
@@ -14,6 +15,11 @@ describe('DEFAULT_TABLE_CONFIG', () => {
     expect(Object.isFrozen(DEFAULT_TABLE_CONFIG.performance)).toBe(true)
     expect(Object.isFrozen(DEFAULT_TABLE_CONFIG.enterprise)).toBe(true)
     expect(Object.isFrozen(DEFAULT_TABLE_CONFIG.dev)).toBe(true)
+    expect(Object.isFrozen(DEFAULT_TABLE_CONFIG.filter)).toBe(true)
+  })
+
+  it('has a default filter serializer', () => {
+    expect(DEFAULT_TABLE_CONFIG.filter.defaultSerializer).toBe(dotSeparated)
   })
 
   it('has sensible default feature flags', () => {

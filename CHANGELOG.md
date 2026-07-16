@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.18
+
+### Features
+
+- Add `AsyncSearchableSelect` — a debounced, paginated combobox for remote-fetched options (search-as-you-type with cancellation of stale responses, infinite scroll via `IntersectionObserver`, optional URL sync of the search term); adds `AsyncOptionsFetchParams`, `AsyncOptionsFetchResult`, and `AsyncOptionsFetcher` types
+- Add `renderSelected?: (option, value) => ReactNode` prop to `SearchableSelect` for fully custom trigger content when a value is selected (avatars, icon + label pairs, status badges); only invoked when `value` is non-empty, otherwise falls back to the existing placeholder/label rendering
+- Add optional `description?: string` field to `Option`, rendered as secondary text next to an option's label in `SearchableSelect` and included in the search match text
+
+### Bug Fixes
+
+- Fix the row-number (`withIndex`) column resetting to 1 on every page when using `isQueryPagination` + `paginationData` without a router — `DataTable`'s internal pagination state was derived only from the URL `page` query param, so it never advanced when pagination was driven directly by `paginationData.paginationResponse.meta.current_page`; it now reads the current page/page size from `paginationResponse.meta` whenever `isQueryPagination` is active
+- Simplify `ClientSideTable`'s row-number column to compute a row's position as `pageIndex * pageSize + positionInPage + 1`, replacing a nested ternary that could misnumber rows
+
+### Tests
+
+- Add coverage for three previously-untested RFCs: configurable filter serialization (`dotSeparated`/`commaSeparated`/`pipeSeparated`/`multiKey`), the `SearchableSelect` combobox, and the responsive toolbar breakpoint (`max-lg`/`lg`) contract
+- Add regression tests locking in correct row numbering across pages for both client-side and query/server-driven (`isQueryPagination`) pagination
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.17
 
 ### Bug Fixes

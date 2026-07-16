@@ -72,6 +72,9 @@ export interface SearchableSelectProps {
   emptyText?: string         // Shown when search finds nothing; defaults to t('no-items-found')
   className?: string         // Applied to trigger button (controls width)
   disabled?: boolean
+  // Overrides the trigger's selected-value content; only called when value is non-empty. See
+  // Amendments (2026-07-16).
+  renderSelected?: (option: Option | undefined, value: string) => React.ReactNode
 }
 ```
 
@@ -204,3 +207,18 @@ Result: `tsup` (with `dts: true`) now builds ESM + CJS + DTS in a single clean p
 - [ ] Should `SearchableSelect` support multi-select in a future version?
 - [ ] Should `toolbarBreakpoint` be a config option so consumers can tune when `SearchableSelect`
   triggers collapse to the mobile drawer?
+
+## Amendments
+
+### 2026-07-16 — `renderSelected` prop
+
+Added `renderSelected?: (option: Option | undefined, value: string) => React.ReactNode`, letting
+consumers replace the trigger's default label `<span>` with custom content (an avatar, an icon +
+label pairing, a status badge). Only invoked when `value` is non-empty — an empty selection always
+falls back to `placeholder ?? allLabel ?? t('all')`, same as before.
+
+Introduced alongside the identical addition to `AsyncSearchableSelect` (RFC 0004), which also fixed
+a related bug where its (async-only) trigger rendered blank instead of the placeholder for an empty
+selection — `SearchableSelect`'s own `selectedLabel = options.find(...)?.label` was never affected
+by that bug, since a `''` value never matches a real option's `value`. See RFC 0004's Amendments for
+the fix detail. Purely additive; no existing prop signature changed.

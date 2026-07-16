@@ -25,6 +25,11 @@ const DEFAULT_TRANSLATIONS: Record<string, string> = {
   // Search
   'search': 'Search',
 
+  // Async search
+  'loading': 'Loading...',
+  'loading-more': 'Loading more...',
+  'load-error': 'Failed to load options.',
+
   // Sorting
   'asc': 'Asc',
   'desc': 'Desc',
