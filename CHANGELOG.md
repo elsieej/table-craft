@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.19
+
+### Bug Fixes
+
+- Fix toolbar layout shifting depending on whether the table/card view toggle is rendered — the view-toggle segmented control in `DataTableToolbar` and `DataTableMobileToolbar` used `p-0.5` padding, making it taller than the other toolbar controls and shifting the row height between tables with `viewToggle` enabled and those without it; reduced to `p-0.25` so the control's height lines up with its siblings
+
+### Contributors
+
+- @elsieej
+
 ## 0.1.18
 
 ### Features

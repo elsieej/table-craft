@@ -134,7 +134,7 @@ export function DataTableMobileToolbar<TData>({
     <Drawer>
       <div className="flex flex-1 items-center gap-2">
       {config.features.viewToggle && viewMode && onViewModeChange && (
-        <div className="flex items-center rounded-lg border bg-muted/30 p-0.5">
+        <div className="flex items-center rounded-lg border bg-muted/30 p-0.25">
           <button
             onClick={() => onViewModeChange('table')}
             className={cn(
